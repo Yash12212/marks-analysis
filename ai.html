@@ -2,7 +2,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Conversation Assistant</title>
+    <title>AI Assistant</title>
     <script src="https://unpkg.com/react@17/umd/react.development.js"></script>
     <script src="https://unpkg.com/react-dom@17/umd/react-dom.development.js"></script>
     <script src="https://unpkg.com/@babel/standalone@7/babel.min.js"></script>
@@ -23,7 +23,7 @@
 
         const Message = ({ role, text, onCopy }) => (
             <div className={`mb-4 flex ${role === 'user' ? 'justify-end' : 'justify-start'}`}>
-                <div className={`p-3 rounded-lg max-w-[70%] ${role === 'user' ? 'bg-blue-600 text-white' : 'bg-gray-700 text-white'}`}>
+                <div className={`p-3 rounded-lg max-w-[80%] sm:max-w-[70%] ${role === 'user' ? 'bg-blue-600 text-white' : 'bg-gray-700 text-white'}`}>
                     <div>{text}</div>
                     <button onClick={() => onCopy(text)} className={`text-sm mt-2 ${role === 'user' ? 'text-white' : 'text-blue-400'}`}>
                         <i className="fas fa-copy"></i> Copy
@@ -32,11 +32,7 @@
             </div>
         );
 
-        const TypingIndicator = () => (
-            <div className="text-center text-gray-400">
-                <span className="animate-pulse">AI is typing</span><span className="ml-2 animate-ping text-blue-400">...</span>
-            </div>
-        );
+        const TypingIndicator = () => <div className="text-center text-gray-400"><span className="animate-pulse">AI is typing</span><span className="ml-2 animate-ping text-blue-400">...</span></div>;
 
         const App = () => {
             const [inputText, setInputText] = useState("");
@@ -47,29 +43,19 @@
             const textareaRef = useRef(null);
 
             useEffect(() => chatEndRef.current?.scrollIntoView({ behavior: "smooth" }), [conversation]);
-            useEffect(() => {
-                if (notifications.length) {
-                    const timer = setTimeout(() => setNotifications([]), 2000);
-                    return () => clearTimeout(timer);
-                }
-            }, [notifications]);
+            useEffect(() => { if (notifications.length) setTimeout(() => setNotifications([]), 2000); }, [notifications]);
 
             const fetchAIResponse = async () => {
                 if (!inputText.trim()) return setNotifications([{ msg: "Please type a message", type: 'error' }]);
-
                 setConversation(prev => [...prev, { role: 'user', text: inputText }]);
                 setInputText("");
                 setIsLoading(true);
-
                 try {
                     const res = await fetch("https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=AIzaSyD-qxZzjQWWfRm4JCw-YuZIS_Z0eLkIvzE", {
                         method: "POST",
                         headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({
-                            contents: [{ parts: [{ text: conversation.map(msg => msg.text).join("\n") + "\n" + inputText }] }]
-                        })
+                        body: JSON.stringify({ contents: [{ parts: [{ text: conversation.map(msg => msg.text).join("\n") + "\n" + inputText }] }] })
                     });
-
                     const data = await res.json();
                     if (data.candidates?.[0]?.content?.parts?.[0]?.text) {
                         setConversation(prev => [...prev, { role: 'ai', text: data.candidates[0].content.parts[0].text }]);
@@ -77,15 +63,10 @@
                     } else throw new Error("Invalid response");
                 } catch (err) {
                     setNotifications([{ msg: "Error: " + err.message, type: 'error' }]);
-                } finally {
-                    setIsLoading(false);
-                }
+                } finally { setIsLoading(false); }
             };
 
-            const handleKeyPress = (e) => {
-                if (e.key === 'Enter' && !isLoading) fetchAIResponse();
-            };
-
+            const handleKeyPress = e => e.key === 'Enter' && !isLoading && fetchAIResponse();
             const handleReset = () => { setConversation([]); setNotifications([]); setInputText(""); setIsLoading(false); };
             const handleCopy = (text) => {
                 textareaRef.current.value = text;
@@ -105,19 +86,15 @@
 
             return (
                 <div className="flex flex-col h-full">
-                    <div className="p-4 bg-blue-800 text-white text-center rounded-t-lg flex justify-between items-center">
+                    <div className="p-4 bg-blue-800 text-white text-center rounded-t-lg flex sm:flex-row sm:justify-between sm:items-center flex-col space-y-2 sm:space-y-0">
                         <h1 className="text-2xl">AI Assistant</h1>
-                        <button 
-                            onClick={downloadChat} 
-                            className="bg-blue-600 text-white px-4 py-2 rounded-lg">
+                        <button onClick={downloadChat} className="bg-blue-600 text-white px-4 py-2 rounded-lg sm:mt-0 mt-2">
                             <i className="fas fa-download"></i> Download Chat
                         </button>
                     </div>
 
                     <div className="p-4 fixed top-0 left-0 right-0 z-50 space-y-2 rounded-t-lg" aria-live="assertive">
-                        {notifications.map((notif, i) => (
-                            <Notification key={i} msg={notif.msg} type={notif.type} onClose={() => setNotifications(prev => prev.filter((_, idx) => idx !== i))} />
-                        ))}
+                        {notifications.map((notif, i) => <Notification key={i} msg={notif.msg} type={notif.type} onClose={() => setNotifications(prev => prev.filter((_, idx) => idx !== i))} />)}
                     </div>
 
                     <div className="flex-grow overflow-y-auto p-4 space-y-4 mb-[150px]">
@@ -127,32 +104,32 @@
                     </div>
 
                     <div className="fixed bottom-0 left-0 w-full p-4 bg-gray-800 border-t border-gray-700 z-10 rounded-b-lg">
-                        <div className="flex space-x-2">
-                            <input 
-                                type="text" 
-                                className="flex-grow p-2 border border-gray-600 bg-gray-700 text-white rounded-l-lg focus:ring-2 focus:ring-blue-500" 
-                                placeholder="Type your message..." 
-                                value={inputText} 
-                                onChange={e => setInputText(e.target.value)} 
-                                onKeyPress={handleKeyPress} 
+                        <div className="flex sm:flex-row sm:space-x-2 sm:space-y-0 flex-col space-y-2">
+                            <input
+                                type="text"
+                                className="flex-grow p-2 border border-gray-600 bg-gray-700 text-white rounded-lg sm:rounded-l-lg focus:ring-2 focus:ring-blue-500"
+                                placeholder="Type your message..."
+                                value={inputText}
+                                onChange={e => setInputText(e.target.value)}
+                                onKeyPress={handleKeyPress}
                                 disabled={isLoading}
                                 aria-label="Type your message"
                             />
-                            <button 
-                                className={`px-4 py-2 rounded-r-lg text-white ${isLoading ? 'bg-gray-500' : 'bg-blue-600'}`} 
-                                onClick={fetchAIResponse} 
-                                disabled={isLoading || !inputText.trim()}>
-                                {isLoading ? <i className="fas fa-spinner fa-spin"></i> : 'Send'}
-                            </button>
+                            <div className="flex space-x-2">
+                                <button
+                                    className={`w-full sm:w-auto px-4 py-2 rounded-lg text-white ${isLoading ? 'bg-gray-500' : 'bg-blue-600'}`}
+                                    onClick={fetchAIResponse}
+                                    disabled={isLoading || !inputText.trim()}>
+                                    {isLoading ? <i className="fas fa-spinner fa-spin"></i> : 'Send'}
+                                </button>
+                                <button
+                                    className="w-full sm:w-auto px-4 py-2 bg-red-600 text-white rounded-lg"
+                                    onClick={handleReset}>
+                                    <i className="fas fa-redo"></i> Reset
+                                </button>
+                            </div>
                         </div>
-                        <button className="w-full px-4 py-2 bg-red-600 text-white mt-2 rounded-lg" onClick={handleReset}>
-                            <i className="fas fa-redo"></i> Reset
-                        </button>
                     </div>
-
-                    <button className="fixed bottom-10 right-4 bg-red-600 rounded-full p-3" onClick={handleReset} aria-label="Reset conversation">
-                        <i className="fas fa-redo"></i>
-                    </button>
 
                     <textarea ref={textareaRef} style={{ position: 'absolute', top: '-9999px', left: '-9999px' }} />
                 </div>
