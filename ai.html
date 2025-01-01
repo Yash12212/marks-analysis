@@ -42,6 +42,7 @@
             const [conversation, setConversation] = useState([]);
             const [isLoading, setIsLoading] = useState(false);
             const [notifications, setNotifications] = useState([]);
+            const [isModalOpen, setIsModalOpen] = useState(false);
             const chatEndRef = useRef(null);
             const textareaRef = useRef(null);
 
@@ -87,13 +88,28 @@
                 link.click();
             };
 
+            const calculateChatStats = () => {
+                const totalCharacters = conversation.reduce((acc, msg) => acc + msg.text.length, 0);
+                const totalWords = conversation.reduce((acc, msg) => acc + msg.text.split(/\s+/).length, 0);
+                return { totalMessages: conversation.length, totalCharacters, totalWords };
+            };
+
+            const chatStats = calculateChatStats();
+
             return (
                 <div className="flex flex-col h-full">
                     <div className="p-4 bg-blue-800 text-white text-center rounded-t-lg flex sm:flex-row sm:justify-between sm:items-center flex-col space-y-2 sm:space-y-0">
                         <h1 className="text-2xl">AI Assistant</h1>
-                        <button onClick={downloadChat} className="bg-blue-600 text-white px-4 py-2 rounded-lg sm:mt-0 mt-2" title="Download Chat">
-                            <i className="fas fa-download"></i> Download Chat
-                        </button>
+                        <div className="flex sm:flex-row sm:space-x-2 space-x-0 flex-col space-y-2 sm:w-auto w-full">
+                            <div className="flex space-x-2 w-full sm:w-auto">
+                                <button onClick={downloadChat} className="w-full sm:w-auto bg-blue-600 text-white px-4 py-2 rounded-lg sm:mt-0 mt-2" title="Download Chat">
+                                    <i className="fas fa-download"></i> Chat
+                                </button>
+                                <button onClick={() => setIsModalOpen(true)} className="w-full sm:w-auto bg-gray-600 text-white px-4 py-2 rounded-lg sm:mt-0 mt-2" title="Chat Info">
+                                    <i className="fas fa-info-circle"></i> Info
+                                </button>
+                            </div>
+                        </div>
                     </div>
 
                     <div className="p-4 fixed top-0 left-0 right-0 z-50 space-y-2 rounded-t-lg" aria-live="assertive">
@@ -137,6 +153,20 @@
                     </div>
 
                     <textarea ref={textareaRef} style={{ position: 'absolute', top: '-9999px', left: '-9999px' }} />
+
+                    {isModalOpen && (
+                        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                            <div className="bg-gray-800 p-6 rounded-lg w-96 shadow-lg">
+                                <h2 className="text-2xl mb-4 text-white">Chat Info</h2>
+                                <div className="text-white mb-2">Total Messages: {chatStats.totalMessages}</div>
+                                <div className="text-white mb-2">Total Words: {chatStats.totalWords}</div>
+                                <div className="text-white mb-2">Total Characters: {chatStats.totalCharacters}</div>
+                                <button onClick={() => setIsModalOpen(false)} className="mt-4 bg-blue-600 text-white px-4 py-2 rounded-lg">
+                                    Close
+                                </button>
+                            </div>
+                        </div>
+                    )}
                 </div>
             );
         };
