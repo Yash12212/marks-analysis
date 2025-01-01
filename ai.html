@@ -17,10 +17,16 @@
     <script type="text/babel">
         const { useState, useEffect, useRef } = React;
 
-        const Message = ({ role, text }) => (
+        const Message = ({ role, text, onCopy }) => (
             <div className={`mb-4 flex ${role === 'user' ? 'justify-end' : 'justify-start'}`}>
                 <div className={`p-3 rounded-lg max-w-[70%] ${role === 'user' ? 'bg-blue-500 text-white' : 'bg-gray-200 text-black'}`}>
                     <div className="whitespace-pre-wrap break-words">{text}</div>
+                    <button 
+                        onClick={() => onCopy(text)} 
+                        className={`mt-2 text-sm ${role === 'user' ? 'text-white' : 'text-blue-500'} hover:text-blue-700`}
+                    >
+                        <i className="fas fa-copy"></i> Copy
+                    </button>
                 </div>
             </div>
         );
@@ -44,6 +50,7 @@
             const [isLoading, setIsLoading] = useState(false);
             const [error, setError] = useState(null);
             const chatEndRef = useRef(null);
+            const textareaRef = useRef(null);  // Create ref for the textarea
 
             const scrollToBottom = () => {
                 chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -129,6 +136,15 @@
                 setIsLoading(false);
             };
 
+            const handleCopy = (text) => {
+                // Set the text to the hidden textarea, select it, and then copy it
+                const textarea = textareaRef.current;
+                textarea.value = text;  // Set the text content to the textarea
+                textarea.select();  // Select the content
+                document.execCommand('copy');  // Execute copy command
+                alert('Text copied to clipboard!');
+            };
+
             return (
                 <div className="flex flex-col h-full">
                     {/* Header */}
@@ -140,7 +156,7 @@
                     <div className="flex-grow overflow-y-auto p-4 space-y-4 mb-[150px]">
                         {/* Double margin added to chat container */}
                         {conversation.map((msg, index) => (
-                            <Message key={index} role={msg.role} text={msg.text} />
+                            <Message key={index} role={msg.role} text={msg.text} onCopy={handleCopy} />
                         ))}
                         {isLoading && <TypingIndicator />}
                         {error && <ErrorMessage message={error} />}
@@ -177,6 +193,12 @@
                             <i className="fas fa-redo"></i> Reset
                         </button>
                     </div>
+
+                    {/* Hidden Textarea for Copying */}
+                    <textarea 
+                        ref={textareaRef}
+                        style={{ position: 'absolute', top: '-9999px', left: '-9999px' }}
+                    ></textarea>
                 </div>
             );
         };
