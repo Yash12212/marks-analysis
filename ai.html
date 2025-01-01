@@ -11,48 +11,33 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
 </head>
 <body class="font-sans bg-gradient-to-br from-gray-100 to-gray-200 h-screen flex flex-col">
-
     <div id="root"></div>
-
     <script type="text/babel">
         const { useState, useEffect, useRef } = React;
 
-        // Notification component with border
-        const Notification = ({ message, type, onClose }) => {
-            const notificationStyles = {
-                success: 'bg-green-500 text-white border-green-700',
-                error: 'bg-red-500 text-white border-red-700',
-                info: 'bg-blue-500 text-white border-blue-700',
-            };
-
-            return (
-                <div className={`p-4 rounded-lg mb-4 ${notificationStyles[type]} border-2 flex justify-between items-center`}>
-                    <div>{message}</div>
-                    <button onClick={onClose} className="text-white hover:text-gray-200">
-                        <i className="fas fa-times"></i>
-                    </button>
-                </div>
-            );
-        };
+        const Notification = ({ msg, type, onClose }) => (
+            <div className={`p-4 rounded-lg mb-4 ${type === 'success' ? 'bg-green-500' : type === 'error' ? 'bg-red-500' : 'bg-blue-500'} text-white border-2 flex justify-between items-center`}>
+                <div>{msg}</div>
+                <button onClick={onClose} className="text-white">
+                    <i className="fas fa-times"></i>
+                </button>
+            </div>
+        );
 
         const Message = ({ role, text, onCopy }) => (
             <div className={`mb-4 flex ${role === 'user' ? 'justify-end' : 'justify-start'}`}>
                 <div className={`p-3 rounded-lg max-w-[70%] ${role === 'user' ? 'bg-blue-500 text-white' : 'bg-gray-200 text-black'}`}>
-                    <div className="whitespace-pre-wrap break-words">{text}</div>
-                    <button 
-                        onClick={() => onCopy(text)} 
-                        className={`mt-2 text-sm ${role === 'user' ? 'text-white' : 'text-blue-500'} hover:text-blue-700`}
-                    >
-                        <i className="fas fa-copy"></i> Copy
+                    <div>{text}</div>
+                    <button onClick={() => onCopy(text)} className={`text-sm mt-2 ${role === 'user' ? 'text-white' : 'text-blue-500'}`}>
+                        <i className={`fas fa-copy ${role === 'user' ? 'text-white' : 'text-blue-500'}`}></i> Copy
                     </button>
                 </div>
             </div>
         );
 
         const TypingIndicator = () => (
-            <div className="text-center text-gray-500 flex justify-center items-center">
-                <span className="animate-pulse">AI is typing</span>
-                <span className="ml-2 animate-ping text-blue-500">...</span>
+            <div className="text-center text-gray-500">
+                <span className="animate-pulse">AI is typing</span><span className="ml-2 animate-ping text-blue-500">...</span>
             </div>
         );
 
@@ -60,189 +45,82 @@
             const [inputText, setInputText] = useState("");
             const [conversation, setConversation] = useState([]);
             const [isLoading, setIsLoading] = useState(false);
-            const [error, setError] = useState(null);
             const [notifications, setNotifications] = useState([]);
             const chatEndRef = useRef(null);
-            const textareaRef = useRef(null);  // Ref for textarea to handle copy
-
-            const scrollToBottom = () => {
-                chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
-            };
+            const textareaRef = useRef(null);
 
             useEffect(() => {
-                scrollToBottom();
+                chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
             }, [conversation]);
 
             const fetchAIResponse = async () => {
-                if (!inputText.trim()) {
-                    setError("Please type a message before sending.");
-                    return;
-                }
-
-                const newUserMessage = { role: 'user', text: inputText };
-                setConversation(prev => [...prev, newUserMessage]);
+                if (!inputText.trim()) return setNotifications([{ msg: "Please type a message", type: 'error' }]);
+                setConversation([...conversation, { role: 'user', text: inputText }]);
                 setInputText("");
                 setIsLoading(true);
-                setError(null);
 
                 try {
-                    const requestBody = {
-                        contents: [{ parts: [{ text: inputText }] }]
-                    };
-
-                    const response = await fetch(
-                        "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=AIzaSyD-qxZzjQWWfRm4JCw-YuZIS_Z0eLkIvzE", 
-                        {
-                            method: "POST",
-                            headers: {
-                                "Content-Type": "application/json"
-                            },
-                            body: JSON.stringify(requestBody)
-                        }
-                    );
-
-                    if (!response.ok) {
-                        throw new Error(`Failed to fetch data. Status: ${response.status} ${response.statusText}`);
-                    }
-
-                    const data = await response.json();
-
-                    if (!data.candidates || !data.candidates[0] || !data.candidates[0].content) {
-                        throw new Error("Unexpected response structure.");
-                    }
-
-                    const aiResponse = { 
-                        role: 'ai', 
-                        text: data.candidates[0].content.parts[0].text 
-                    };
-
-                    setConversation(prev => [...prev, aiResponse]);
-                    showNotification("AI response received!", "success");
-
+                    const res = await fetch("https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=AIzaSyD-qxZzjQWWfRm4JCw-YuZIS_Z0eLkIvzE", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ contents: [{ parts: [{ text: inputText }] }] })
+                    });
+                    const data = await res.json();
+                    if (data.candidates?.[0]?.content?.parts?.[0]?.text) {
+                        setConversation(prev => [...prev, { role: 'ai', text: data.candidates[0].content.parts[0].text }]);
+                        setNotifications([{ msg: "AI response received", type: 'success' }]);
+                    } else throw new Error("Invalid response");
                 } catch (err) {
-                    console.error("Error occurred during API call:", err);
-
-                    setError("Sorry, there was an error processing your request. Please try again.");
-                    showNotification(err.message, "error");
+                    setNotifications([{ msg: "Error: " + err.message, type: 'error' }]);
                 } finally {
                     setIsLoading(false);
                 }
             };
 
-            const handleKeyPress = (e) => {
-                if (e.key === 'Enter' && !isLoading) {
-                    fetchAIResponse();
-                }
-            };
-
-            const handleReset = () => {
-                setConversation([]);
-                setInputText("");
-                setError(null);
-                setIsLoading(false);
-                setNotifications([]);
-            };
-
-            const handleCopy = (text) => {
-                // Set the text to the hidden textarea, select it, and then copy it
-                const textarea = textareaRef.current;
-                textarea.value = text;  // Set the text content to the textarea
-                textarea.select();  // Select the content
-                document.execCommand('copy');  // Execute copy command
-                showNotification("Text copied to clipboard!", "info");
-            };
-
-            const showNotification = (message, type) => {
-                // Add the new notification to the list
-                setNotifications(prev => {
-                    const newNotifications = [...prev, { message, type }];
-                    if (newNotifications.length > 5) {
-                        // Remove the oldest notification if there are more than 5
-                        newNotifications.shift();
-                    }
-                    return newNotifications;
-                });
-
-                // Auto-dismiss after 5 seconds
-                setTimeout(() => {
-                    setNotifications(prev => prev.filter(notif => notif.message !== message));
-                }, 5000);
-            };
-
-            const handleNotificationClose = (index) => {
-                setNotifications(prev => prev.filter((_, i) => i !== index));
-            };
+            const handleKeyPress = (e) => e.key === 'Enter' && !isLoading && fetchAIResponse();
+            const handleReset = () => { setConversation([]); setNotifications([]); setInputText(""); setIsLoading(false); };
+            const handleCopy = (text) => { textareaRef.current.value = text; textareaRef.current.select(); document.execCommand('copy'); setNotifications([{ msg: "Text copied to clipboard", type: 'info' }]); };
 
             return (
                 <div className="flex flex-col h-full">
-                    {/* Header */}
                     <div className="p-4 bg-blue-500 text-white text-center">
-                        <h1 className="text-2xl font-semibold">AI Conversation Assistant</h1>
+                        <h1 className="text-2xl">AI Assistant</h1>
                     </div>
 
-                    {/* Notifications */}
                     <div className="p-4 fixed top-0 left-0 right-0 z-50 space-y-2">
-                        {notifications.map((notif, index) => (
-                            <Notification 
-                                key={index}
-                                message={notif.message}
-                                type={notif.type}
-                                onClose={() => handleNotificationClose(index)}
-                            />
-                        ))}
+                        {notifications.map((notif, i) => <Notification key={i} msg={notif.msg} type={notif.type} onClose={() => setNotifications(prev => prev.filter((_, idx) => idx !== i))} />)}
                     </div>
 
-                    {/* Chat Container */}
                     <div className="flex-grow overflow-y-auto p-4 space-y-4 mb-[150px]">
-                        {conversation.map((msg, index) => (
-                            <Message 
-                                key={index} 
-                                role={msg.role} 
-                                text={msg.text} 
-                                onCopy={handleCopy}
-                            />
-                        ))}
+                        {conversation.map((msg, i) => <Message key={i} role={msg.role} text={msg.text} onCopy={handleCopy} />)}
                         {isLoading && <TypingIndicator />}
-                        {error && <ErrorMessage message={error} />}
                         <div ref={chatEndRef} />
                     </div>
 
-                    {/* Input Area */}
-                    <div className="fixed bottom-0 left-0 w-full p-4 bg-white border-t border-gray-300 z-10">
+                    <div className="fixed bottom-0 left-0 w-full p-4 bg-white border-t z-10">
                         <div className="flex space-x-2">
                             <input 
                                 type="text" 
-                                className="flex-grow p-2 border rounded-l-lg focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm"
+                                className="flex-grow p-2 border rounded-l-lg" 
                                 placeholder="Type your message..." 
-                                value={inputText}
-                                onChange={(e) => setInputText(e.target.value)}
-                                onKeyPress={handleKeyPress}
+                                value={inputText} 
+                                onChange={e => setInputText(e.target.value)} 
+                                onKeyPress={handleKeyPress} 
                                 disabled={isLoading}
-                                aria-label="Input message"
                             />
                             <button 
-                                className={`px-4 py-2 rounded-r-lg text-white ${isLoading ? 'bg-gray-400 cursor-not-allowed' : 'bg-blue-500 hover:bg-blue-600 focus:ring-2 focus:ring-blue-500'}`}
-                                onClick={fetchAIResponse}
-                                disabled={isLoading || !inputText.trim()}
-                                aria-label="Send message"
-                            >
+                                className={`px-4 py-2 rounded-r-lg text-white ${isLoading ? 'bg-gray-400' : 'bg-blue-500'}`} 
+                                onClick={fetchAIResponse} 
+                                disabled={isLoading || !inputText.trim()}>
                                 {isLoading ? 'Sending...' : 'Send'}
                             </button>
                         </div>
-                        <button 
-                            className="w-full px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 focus:ring-2 focus:ring-red-500 mt-2"
-                            onClick={handleReset}
-                            aria-label="Reset conversation"
-                        >
+                        <button className="w-full px-4 py-2 bg-red-500 text-white mt-2" onClick={handleReset}>
                             <i className="fas fa-redo"></i> Reset
                         </button>
                     </div>
 
-                    {/* Hidden Textarea for Copying */}
-                    <textarea 
-                        ref={textareaRef}
-                        style={{ position: 'absolute', top: '-9999px', left: '-9999px' }}
-                    ></textarea>
+                    <textarea ref={textareaRef} style={{ position: 'absolute', top: '-9999px', left: '-9999px' }} />
                 </div>
             );
         };
