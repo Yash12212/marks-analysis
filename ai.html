@@ -16,7 +16,10 @@
 
         const Notification = ({ msg, type, onClose }) => (
             <div className={`p-4 rounded-lg mb-4 ${type === 'success' ? 'bg-green-600' : type === 'error' ? 'bg-red-600' : 'bg-blue-600'} text-white flex justify-between items-center`}>
-                <div>{msg}</div>
+                <div className="flex items-center space-x-2">
+                    <i className={`fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'info-circle'}`}></i>
+                    <div>{msg}</div>
+                </div>
                 <button onClick={onClose} className="text-white"><i className="fas fa-times"></i></button>
             </div>
         );
@@ -25,7 +28,7 @@
             <div className={`mb-4 flex ${role === 'user' ? 'justify-end' : 'justify-start'}`}>
                 <div className={`p-3 rounded-lg max-w-[80%] sm:max-w-[70%] ${role === 'user' ? 'bg-blue-600 text-white' : 'bg-gray-700 text-white'}`}>
                     <div>{text}</div>
-                    <button onClick={() => onCopy(text)} className={`text-sm mt-2 ${role === 'user' ? 'text-white' : 'text-blue-400'}`}>
+                    <button onClick={() => onCopy(text)} className={`text-sm mt-2 ${role === 'user' ? 'text-white' : 'text-blue-400'}`} title="Copy to clipboard">
                         <i className="fas fa-copy"></i> Copy
                     </button>
                 </div>
@@ -88,7 +91,7 @@
                 <div className="flex flex-col h-full">
                     <div className="p-4 bg-blue-800 text-white text-center rounded-t-lg flex sm:flex-row sm:justify-between sm:items-center flex-col space-y-2 sm:space-y-0">
                         <h1 className="text-2xl">AI Assistant</h1>
-                        <button onClick={downloadChat} className="bg-blue-600 text-white px-4 py-2 rounded-lg sm:mt-0 mt-2">
+                        <button onClick={downloadChat} className="bg-blue-600 text-white px-4 py-2 rounded-lg sm:mt-0 mt-2" title="Download Chat">
                             <i className="fas fa-download"></i> Download Chat
                         </button>
                     </div>
@@ -119,12 +122,14 @@
                                 <button
                                     className={`w-full sm:w-auto px-4 py-2 rounded-lg text-white ${isLoading ? 'bg-gray-500' : 'bg-blue-600'}`}
                                     onClick={fetchAIResponse}
-                                    disabled={isLoading || !inputText.trim()}>
-                                    {isLoading ? <i className="fas fa-spinner fa-spin"></i> : 'Send'}
+                                    disabled={isLoading || !inputText.trim()}
+                                    title="Send Message">
+                                    {isLoading ? <i className="fas fa-spinner fa-spin"></i> : <><i className="fas fa-paper-plane"></i> Send</>}
                                 </button>
                                 <button
                                     className="w-full sm:w-auto px-4 py-2 bg-red-600 text-white rounded-lg"
-                                    onClick={handleReset}>
+                                    onClick={handleReset}
+                                    title="Reset Conversation">
                                     <i className="fas fa-redo"></i> Reset
                                 </button>
                             </div>
