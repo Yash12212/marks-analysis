@@ -17,6 +17,24 @@
     <script type="text/babel">
         const { useState, useEffect, useRef } = React;
 
+        // Notification component with border
+        const Notification = ({ message, type, onClose }) => {
+            const notificationStyles = {
+                success: 'bg-green-500 text-white border-green-700',
+                error: 'bg-red-500 text-white border-red-700',
+                info: 'bg-blue-500 text-white border-blue-700',
+            };
+
+            return (
+                <div className={`p-4 rounded-lg mb-4 ${notificationStyles[type]} border-2 flex justify-between items-center`}>
+                    <div>{message}</div>
+                    <button onClick={onClose} className="text-white hover:text-gray-200">
+                        <i className="fas fa-times"></i>
+                    </button>
+                </div>
+            );
+        };
+
         const Message = ({ role, text, onCopy }) => (
             <div className={`mb-4 flex ${role === 'user' ? 'justify-end' : 'justify-start'}`}>
                 <div className={`p-3 rounded-lg max-w-[70%] ${role === 'user' ? 'bg-blue-500 text-white' : 'bg-gray-200 text-black'}`}>
@@ -38,19 +56,14 @@
             </div>
         );
 
-        const ErrorMessage = ({ message }) => (
-            <div className="text-center text-red-500 mt-2">
-                <i className="fas fa-exclamation-triangle mr-2"></i>{message}
-            </div>
-        );
-
         const App = () => {
             const [inputText, setInputText] = useState("");
             const [conversation, setConversation] = useState([]);
             const [isLoading, setIsLoading] = useState(false);
             const [error, setError] = useState(null);
+            const [notifications, setNotifications] = useState([]);
             const chatEndRef = useRef(null);
-            const textareaRef = useRef(null);  // Create ref for the textarea
+            const textareaRef = useRef(null);  // Ref for textarea to handle copy
 
             const scrollToBottom = () => {
                 chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -104,20 +117,13 @@
                     };
 
                     setConversation(prev => [...prev, aiResponse]);
+                    showNotification("AI response received!", "success");
 
                 } catch (err) {
                     console.error("Error occurred during API call:", err);
 
-                    if (err.message.includes('NetworkError')) {
-                        setError("Network error occurred. Please check your connection and try again.");
-                    } else if (err.message.includes('Failed to fetch')) {
-                        setError("Failed to communicate with the server. Please try again later.");
-                    } else if (err.message.includes('Unexpected response structure')) {
-                        setError("We received an unexpected response from the server. Please try again.");
-                    } else {
-                        setError("Sorry, there was an error processing your request. Please try again.");
-                    }
-
+                    setError("Sorry, there was an error processing your request. Please try again.");
+                    showNotification(err.message, "error");
                 } finally {
                     setIsLoading(false);
                 }
@@ -134,6 +140,7 @@
                 setInputText("");
                 setError(null);
                 setIsLoading(false);
+                setNotifications([]);
             };
 
             const handleCopy = (text) => {
@@ -142,7 +149,28 @@
                 textarea.value = text;  // Set the text content to the textarea
                 textarea.select();  // Select the content
                 document.execCommand('copy');  // Execute copy command
-                alert('Text copied to clipboard!');
+                showNotification("Text copied to clipboard!", "info");
+            };
+
+            const showNotification = (message, type) => {
+                // Add the new notification to the list
+                setNotifications(prev => {
+                    const newNotifications = [...prev, { message, type }];
+                    if (newNotifications.length > 5) {
+                        // Remove the oldest notification if there are more than 5
+                        newNotifications.shift();
+                    }
+                    return newNotifications;
+                });
+
+                // Auto-dismiss after 5 seconds
+                setTimeout(() => {
+                    setNotifications(prev => prev.filter(notif => notif.message !== message));
+                }, 5000);
+            };
+
+            const handleNotificationClose = (index) => {
+                setNotifications(prev => prev.filter((_, i) => i !== index));
             };
 
             return (
@@ -152,11 +180,27 @@
                         <h1 className="text-2xl font-semibold">AI Conversation Assistant</h1>
                     </div>
 
+                    {/* Notifications */}
+                    <div className="p-4 fixed top-0 left-0 right-0 z-50 space-y-2">
+                        {notifications.map((notif, index) => (
+                            <Notification 
+                                key={index}
+                                message={notif.message}
+                                type={notif.type}
+                                onClose={() => handleNotificationClose(index)}
+                            />
+                        ))}
+                    </div>
+
                     {/* Chat Container */}
                     <div className="flex-grow overflow-y-auto p-4 space-y-4 mb-[150px]">
-                        {/* Double margin added to chat container */}
                         {conversation.map((msg, index) => (
-                            <Message key={index} role={msg.role} text={msg.text} onCopy={handleCopy} />
+                            <Message 
+                                key={index} 
+                                role={msg.role} 
+                                text={msg.text} 
+                                onCopy={handleCopy}
+                            />
                         ))}
                         {isLoading && <TypingIndicator />}
                         {error && <ErrorMessage message={error} />}
