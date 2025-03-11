@@ -1,379 +1,401 @@
-from flask import Flask, render_template_string, request, redirect, session, url_for, Response
-import random
-import matplotlib.pyplot as plt
-import io
-import os
-import pickle
+from flask import Flask, request, jsonify, render_template_string, Response
+import random, json, os, time
 
 app = Flask(__name__)
-app.secret_key = 'your_secret_key'  # Replace with a secure key
 
-###############################
-# Persistence Setup           #
-###############################
+# Q‑learning parameters and global Q‑table
+q_table = {}  # state -> {action: Q-value}
+learning_rate = 0.1
+discount_factor = 0.9
+epsilon = 0.1  # exploration probability
 
-TRAINING_DATA_FILE = 'training_data.pkl'
+# --- Tic Tac Toe helper functions ---
+def get_empty_board():
+    return [' '] * 9
 
-def save_training_data():
-    """Persist the agent’s Q-table and training stats to a file."""
-    with open(TRAINING_DATA_FILE, 'wb') as f:
-        pickle.dump((agent.Q, training_stats), f)
+def board_to_str(board):
+    return ''.join(board)
 
-def load_training_data():
-    """Load the agent’s Q-table and training stats from a file, if it exists."""
-    global agent, training_stats
-    if os.path.exists(TRAINING_DATA_FILE):
-        with open(TRAINING_DATA_FILE, 'rb') as f:
-            agent.Q, training_stats = pickle.load(f)
+def available_actions(board):
+    return [i for i, cell in enumerate(board) if cell == ' ']
 
-###############################
-# Global Training Statistics  #
-###############################
-
-training_stats = {
-    "episodes": 0,
-    "wins": 0,
-    "losses": 0,
-    "draws": 0,
-    "history": []  # Each entry is a tuple: (total_episodes, wins, losses, draws)
-}
-
-###############################
-# Game Logic Helper Functions #
-###############################
-
-def check_win(board, player):
+def check_winner(board):
     wins = [
-        (0, 1, 2), (3, 4, 5), (6, 7, 8),  # rows
-        (0, 3, 6), (1, 4, 7), (2, 5, 8),  # columns
-        (0, 4, 8), (2, 4, 6)              # diagonals
+        (0,1,2), (3,4,5), (6,7,8),   # rows
+        (0,3,6), (1,4,7), (2,5,8),   # columns
+        (0,4,8), (2,4,6)             # diagonals
     ]
     for a, b, c in wins:
-        if board[a] == board[b] == board[c] == player:
-            return True
-    return False
+        if board[a] != ' ' and board[a] == board[b] == board[c]:
+            return board[a]
+    if ' ' not in board:
+        return 'Draw'
+    return None
 
-def check_game_result(board):
-    """
-    Returns a tuple (reward, game_over) from the agent's perspective.
-    Agent ('O') win: reward = 1
-    Opponent ('X') win: reward = -1
-    Draw: reward = 0
-    """
-    if check_win(board, 'X'):
-        return (-1, True)
-    elif check_win(board, 'O'):
-        return (1, True)
-    elif ' ' not in board:
-        return (0, True)
+# --- Q‑learning functions ---
+def choose_action(state, board):
+    global q_table, epsilon
+    if random.random() < epsilon:
+        return random.choice(available_actions(board))
     else:
-        return (0, False)
+        if state not in q_table:
+            q_table[state] = {}
+        for action in available_actions(board):
+            if action not in q_table[state]:
+                q_table[state][action] = 0.0
+        actions = q_table[state]
+        max_val = max(actions.values()) if actions else 0
+        best_actions = [a for a, v in actions.items() if v == max_val]
+        return random.choice(best_actions) if best_actions else random.choice(available_actions(board))
 
-def board_to_html(board):
-    """Render board as an HTML table with clickable empty cells using responsive design."""
-    html = "<table class='board-table' style='width:300px; margin: auto;'>"
-    for i in range(3):
-        html += "<tr>"
-        for j in range(3):
-            index = i * 3 + j
-            cell = board[index]
-            if cell == ' ':
-                cell_html = (f"<a href='/move?pos={index}' class='cell-link'>"
-                             f"<div class='cell'><div class='cell-content'>{cell}</div></div>"
-                             "</a>")
-            else:
-                cell_html = (f"<div class='cell'><div class='cell-content'>{cell}</div></div>")
-            html += f"<td>{cell_html}</td>"
-        html += "</tr>"
-    html += "</table>"
-    return html
+def update_q_value(state, action, reward, next_state, next_board):
+    global q_table, learning_rate, discount_factor
+    if state not in q_table:
+        q_table[state] = {}
+    if action not in q_table[state]:
+        q_table[state][action] = 0.0
+    if next_state not in q_table or not available_actions(next_board):
+        max_next = 0
+    else:
+        for act in available_actions(next_board):
+            if act not in q_table[next_state]:
+                q_table[next_state][act] = 0.0
+        max_next = max(q_table[next_state].values()) if q_table[next_state] else 0
+    q_table[state][action] = q_table[state][action] + learning_rate * (reward + discount_factor * max_next - q_table[state][action])
 
-###############################
-# Q-Learning Agent Definition #
-###############################
-
-class QLearningAgent:
-    def __init__(self, alpha=0.1, gamma=0.9, epsilon=0.2):
-        self.Q = {}  # Q-table: key = (state, action), value = Q-value
-        self.alpha = alpha
-        self.gamma = gamma
-        self.epsilon = epsilon
-
-    def canonical_state(self, board):
-        return tuple(board)
-
-    def get_valid_actions(self, board):
-        return [i for i, cell in enumerate(board) if cell == ' ']
-
-    def choose_action(self, board):
-        state = self.canonical_state(board)
-        valid_actions = self.get_valid_actions(board)
-        if not valid_actions:
-            return None
-        if random.random() < self.epsilon:
-            return random.choice(valid_actions)
+def simulate_game(train=False):
+    board = get_empty_board()
+    state = board_to_str(board)
+    current_player = 'X'
+    moves = []  # record moves for Q‑learning updates
+    while True:
+        if current_player == 'X':
+            action = choose_action(state, board)
         else:
-            q_values = [self.Q.get((state, a), 0) for a in valid_actions]
-            max_q = max(q_values)
-            best_actions = [a for a, q in zip(valid_actions, q_values) if q == max_q]
-            return random.choice(best_actions)
+            action = random.choice(available_actions(board))
+        moves.append((state, action, current_player))
+        board[action] = current_player
+        winner = check_winner(board)
+        next_state = board_to_str(board)
+        if winner is not None:
+            reward = 1 if winner == 'X' else (-1 if winner != 'Draw' else 0.5)
+            if train:
+                for s, a, p in moves:
+                    if p == 'X':
+                        update_q_value(s, a, reward, next_state, board)
+            return winner, moves
+        state = next_state
+        current_player = 'O' if current_player == 'X' else 'X'
 
-    def update_q(self, board, action, reward, next_board):
-        state = self.canonical_state(board)
-        next_state = self.canonical_state(next_board)
-        current_q = self.Q.get((state, action), 0)
-        valid_actions = self.get_valid_actions(next_board)
-        max_next_q = max([self.Q.get((next_state, a), 0) for a in valid_actions]) if valid_actions else 0
-        self.Q[(state, action)] = current_q + self.alpha * (reward + self.gamma * max_next_q - current_q)
-
-# Create our global agent.
-agent = QLearningAgent(alpha=0.1, gamma=0.9, epsilon=0.2)
-
-# Attempt to load previous training data from file.
-load_training_data()
-
-#########################################
-# Training Function (on-demand batch)   #
-#########################################
-
-def train_agent_batch(agent, episodes):
-    """
-    Train the agent for a given number of episodes and return win/loss/draw counts.
-    """
-    batch_wins = 0
-    batch_losses = 0
-    batch_draws = 0
-    for _ in range(episodes):
-        board = [' '] * 9
-        game_over = False
-        # Randomly decide if the opponent (playing as 'X') goes first.
-        if random.random() < 0.5:
-            valid = agent.get_valid_actions(board)
-            move = random.choice(valid)
-            board[move] = 'X'
-        while not game_over:
-            # Agent's turn as 'O'
-            action = agent.choose_action(board)
-            if action is None:
-                break
-            prev_board = board.copy()
-            board[action] = 'O'
-            reward, game_over = check_game_result(board)
-            agent.update_q(prev_board, action, reward, board)
-            if game_over:
-                break
-            # Opponent's turn as 'X'
-            valid = agent.get_valid_actions(board)
-            if not valid:
-                break
-            opponent_action = random.choice(valid)
-            board[opponent_action] = 'X'
-            reward, game_over = check_game_result(board)
-        reward_final, _ = check_game_result(board)
-        if reward_final == 1:
-            batch_wins += 1
-        elif reward_final == -1:
-            batch_losses += 1
-        else:
-            batch_draws += 1
-    return batch_wins, batch_losses, batch_draws
-
-###############################
-# Flask Routes (Web Interface)#
-###############################
-
+# --- Flask Endpoints ---
 @app.route('/')
 def index():
-    if 'board' not in session:
-        session['board'] = [' '] * 9
-    board = session['board']
-    message = session.pop('message', '')
-    board_html = board_to_html(board)
-    
-    episodes = training_stats['episodes']
-    wins = training_stats['wins']
-    losses = training_stats['losses']
-    draws = training_stats['draws']
-    if episodes > 0:
-        win_pct = wins / episodes * 100
-        loss_pct = losses / episodes * 100
-        draw_pct = draws / episodes * 100
-    else:
-        win_pct = loss_pct = draw_pct = 0
-
-    stats = (f"<p>Total Training Episodes: {episodes}</p>"
-             f"<p>Wins: {wins} ({win_pct:.2f}%) | Losses: {losses} ({loss_pct:.2f}%) | Draws: {draws} ({draw_pct:.2f}%)</p>")
-
-    template = """
-    <html>
-    <head>
-      <title>Tic Tac Toe - Q-Learning Agent</title>
-      <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
-      <style>
-        body {
-          background-color: #f8f9fa;
-        }
-        .container {
-          max-width: 800px;
-          margin-top: 20px;
-        }
-        .board-table {
-          margin: auto;
-        }
-        .board-table td {
-          padding: 0;
-        }
-        .cell {
-          width: 100%;
-          padding-top: 100%;
-          position: relative;
-          border: 1px solid #000;
-          font-size: 2em;
-          text-align: center;
-        }
-        .cell-content {
-          position: absolute;
-          top: 0;
-          bottom: 0;
-          left: 0;
-          right: 0;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-        }
-        a.cell-link {
-          display: block;
-          width: 100%;
-          height: 100%;
-          text-decoration: none;
-          color: black;
-        }
-      </style>
-      <script>
-        function updateSlider(val) {
-            document.getElementById('episode_value').innerText = val;
-        }
-      </script>
-    </head>
-    <body>
-      <div class="container">
-        <h1 class="text-center">Tic Tac Toe</h1>
-        <div class="text-center">
-          {{ board_html|safe }}
-          <p class="mt-3">{{ message }}</p>
-          <a href="{{ url_for('reset') }}" class="btn btn-warning">Reset Game</a>
+    return render_template_string('''
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Tic Tac Toe Agent Interface</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+      body { font-family: Arial, sans-serif; }
+      .board { 
+          display: grid; 
+          grid-template-columns: repeat(3, 100px); 
+          grid-gap: 5px; 
+          justify-content: center; 
+          margin-bottom: 20px; 
+      }
+      .cell { 
+          background: #fff; 
+          border: 1px solid #333; 
+          display: flex; 
+          align-items: center; 
+          justify-content: center; 
+          font-size: 2em; 
+          width: 100px; 
+          height: 100px; 
+          cursor: pointer; 
+      }
+      .widget { margin-bottom: 20px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="jumbotron text-center">
+            <h1>Tic Tac Toe Agent Interface</h1>
         </div>
-        <hr>
-        <h2>Train the Agent</h2>
-        <form action="/train_more" method="post" class="mb-3">
-          <div class="form-group">
-              <label for="episodes">Train Episodes:</label>
-              <input type="range" id="episodes" name="episodes" min="100" max="50000" value="1000" step="100" oninput="updateSlider(this.value)" class="form-control-range">
-              <span id="episode_value">1000</span>
-          </div>
-          <button type="submit" class="btn btn-primary">Train More</button>
-        </form>
-        <h3>Training Stats</h3>
-        <div>
-          {{ stats|safe }}
+        <div class="row">
+            <!-- Left Sidebar -->
+            <div class="col-md-4">
+                <div class="card widget" id="train_widget">
+                    <div class="card-header">Train Agent</div>
+                    <div class="card-body">
+                        <input type="number" id="train_episodes" class="form-control mb-2" value="1000" min="1">
+                        <button id="train_btn" class="btn btn-primary btn-block">Train</button>
+                        <div class="progress mt-2" style="height: 25px;">
+                            <div id="train_progress_bar" class="progress-bar" role="progressbar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">0%</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card widget" id="simulate_widget">
+                    <div class="card-header">Simulate Game</div>
+                    <div class="card-body">
+                        <button id="simulate_btn" class="btn btn-info btn-block">Simulate Single Game</button>
+                        <div id="simulate_result" class="mt-2"></div>
+                    </div>
+                </div>
+                <div class="card widget" id="stats_widget">
+                    <div class="card-header">Run Simulations for Statistics</div>
+                    <div class="card-body">
+                        <input type="number" id="num_games" class="form-control mb-2" value="100" min="1">
+                        <button id="run_sim_btn" class="btn btn-info btn-block">Run Simulations</button>
+                    </div>
+                </div>
+            </div>
+            <!-- Main Content -->
+            <div class="col-md-8">
+                <div class="card widget" id="play_widget">
+                    <div class="card-header">Play Against Agent</div>
+                    <div class="card-body text-center">
+                        <div class="board" id="game_board">
+                            {% for i in range(9) %}
+                            <div class="cell" data-index="{{ i }}"></div>
+                            {% endfor %}
+                        </div>
+                        <button id="reset_btn" class="btn btn-warning">Reset Game</button>
+                        <div id="game_status" class="mt-2"></div>
+                    </div>
+                </div>
+                <div class="card widget" id="chart_widget">
+                    <div class="card-header">Game Statistics (%)</div>
+                    <div class="card-body">
+                        <canvas id="statsChart" width="400" height="400"></canvas>
+                    </div>
+                </div>
+            </div>
         </div>
-        <h3>Training Graph</h3>
-        <div>
-          <img src="{{ url_for('plot_png') }}" alt="Training Graph" class="img-fluid">
-        </div>
-      </div>
-    </body>
-    </html>
-    """
-    return render_template_string(template, board_html=board_html, message=message, stats=stats)
+    </div>
+    
+    <!-- jQuery and Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    
+    <script>
+    var board = Array(9).fill(" ");
+    function updateBoard() {
+        $(".cell").each(function(){
+            var idx = $(this).data("index");
+            $(this).text(board[idx]);
+        });
+    }
+    function checkWinner() {
+        const wins = [
+            [0,1,2],[3,4,5],[6,7,8],
+            [0,3,6],[1,4,7],[2,5,8],
+            [0,4,8],[2,4,6]
+        ];
+        for(let win of wins) {
+            const [a,b,c] = win;
+            if(board[a] !== " " && board[a] === board[b] && board[a] === board[c]) {
+                return board[a];
+            }
+        }
+        if(board.indexOf(" ") === -1) return "Draw";
+        return null;
+    }
+    
+    // Game play: Human move then agent move
+    $("#game_board").on("click", ".cell", function(){
+        var idx = $(this).data("index");
+        if(board[idx] !== " " || checkWinner() !== null) return;
+        board[idx] = "X";
+        updateBoard();
+        var winner = checkWinner();
+        if(winner) {
+            $("#game_status").text("Winner: " + winner);
+            return;
+        }
+        $.ajax({
+            url: "/play",
+            method: "POST",
+            contentType: "application/json",
+            data: JSON.stringify({board: board}),
+            success: function(data) {
+                board = data.board;
+                updateBoard();
+                var winner = checkWinner();
+                if(winner) {
+                    $("#game_status").text("Winner: " + winner);
+                }
+            }
+        });
+    });
+    $("#reset_btn").click(function(){
+        board = Array(9).fill(" ");
+        updateBoard();
+        $("#game_status").text("");
+    });
+    
+    // Train agent with real-time progress using Server-Sent Events (SSE)
+    $("#train_btn").click(function(){
+        var episodes = parseInt($("#train_episodes").val());
+        var source = new EventSource("/train_stream?episodes=" + episodes);
+        source.onmessage = function(event) {
+             var data = JSON.parse(event.data);
+             var progress = data.progress;
+             $("#train_progress_bar").css("width", progress + "%")
+                .attr("aria-valuenow", progress)
+                .text(Math.floor(progress) + "%");
+             // Update the pie chart with current stats
+             var wins_x = data.wins_x;
+             var wins_o = data.wins_o;
+             var draws = data.draws;
+             var total = wins_x + wins_o + draws;
+             if(total === 0) total = 1;
+             statsChart.data.datasets[0].data = [
+                        ((wins_x/total)*100).toFixed(1),
+                        ((wins_o/total)*100).toFixed(1),
+                        ((draws/total)*100).toFixed(1)
+                    ];
+             statsChart.update();
+             if(progress >= 100) {
+                  source.close();
+                  alert("Training complete!");
+             }
+        };
+    });
+    
+    // Simulate a single game
+    $("#simulate_btn").click(function(){
+        $.ajax({
+            url: "/simulate",
+            method: "GET",
+            success: function(data) {
+                $("#simulate_result").text("Result: " + data.result);
+            }
+        });
+    });
+    
+    // Run simulations and update pie chart for statistics
+    $("#run_sim_btn").click(function(){
+        var numGames = parseInt($("#num_games").val());
+        $.ajax({
+            url: "/simulate_stats?games=" + numGames,
+            method: "GET",
+            success: function(data) {
+                var total = data.X + data.O + data.Draw;
+                if(total === 0) total = 1;
+                statsChart.data.datasets[0].data = [
+                    ((data.X/total)*100).toFixed(1),
+                    ((data.O/total)*100).toFixed(1),
+                    ((data.Draw/total)*100).toFixed(1)
+                ];
+                statsChart.update();
+            }
+        });
+    });
+    
+    // Initialize Chart.js pie chart
+    var ctx = document.getElementById('statsChart').getContext('2d');
+    var statsChart = new Chart(ctx, {
+        type: 'pie',
+        data: {
+            labels: ['X Wins', 'O Wins', 'Draws'],
+            datasets: [{
+                data: [0, 0, 0],
+                backgroundColor: ['#36A2EB', '#FF6384', '#FFCE56']
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            title: {
+                display: true,
+                text: 'Game Statistics (%)'
+            }
+        }
+    });
+    </script>
+</body>
+</html>
+    ''')
 
-@app.route('/move')
-def move():
-    pos = int(request.args.get('pos'))
-    board = session.get('board', [' '] * 9)
-    
-    if board[pos] != ' ':
-        session['message'] = "Invalid move! Please choose an empty cell."
-        return redirect(url_for('index'))
-    
-    # Human move as 'X'
-    board[pos] = 'X'
-    reward, game_over = check_game_result(board)
-    if game_over:
-        if reward == -1:
-            session['message'] = "Congratulations, you win!"
-        elif reward == 0:
-            session['message'] = "It's a draw!"
-        session['board'] = board
-        return redirect(url_for('index'))
-    
-    # Agent's move as 'O'
-    valid = [i for i, cell in enumerate(board) if cell == ' ']
-    if valid:
-        action = agent.choose_action(board)
+# Agent plays as 'O' in this endpoint.
+@app.route('/play', methods=['POST'])
+def play():
+    data = request.get_json()
+    board = data.get("board")
+    state = ''.join(board)
+    if ' ' in board and check_winner(board) is None:
+        action = choose_action(state, board)
         board[action] = 'O'
-        reward, game_over = check_game_result(board)
-        if game_over:
-            if reward == 1:
-                session['message'] = "Agent wins! Better luck next time."
-            elif reward == 0:
-                session['message'] = "It's a draw!"
-    session['board'] = board
-    return redirect(url_for('index'))
+    return jsonify({"board": board})
 
-@app.route('/reset')
-def reset():
-    session['board'] = [' '] * 9
-    session['message'] = "Game reset! Your move."
-    return redirect(url_for('index'))
+# Simulate a single game (without training updates)
+@app.route('/simulate', methods=['GET'])
+def simulate():
+    result, moves = simulate_game(train=False)
+    return jsonify({"result": result, "moves": moves})
 
-@app.route('/train_more', methods=['POST'])
-def train_more():
-    try:
-        episodes = int(request.form.get('episodes', 1000))
-    except ValueError:
-        episodes = 1000
+# Simulate multiple games for win/loss/draw statistics
+@app.route('/simulate_stats', methods=['GET'])
+def simulate_stats():
+    num_games = int(request.args.get("games", 100))
+    stats = {"X": 0, "O": 0, "Draw": 0}
+    for _ in range(num_games):
+        result, _ = simulate_game(train=False)
+        if result in stats:
+            stats[result] += 1
+    return jsonify(stats)
 
-    wins, losses, draws = train_agent_batch(agent, episodes)
+# New endpoint for training with real-time progress via SSE
+@app.route('/train_stream', methods=['GET'])
+def train_stream():
+    episodes = int(request.args.get("episodes", 1000))
+    def generate():
+        wins_x = 0
+        wins_o = 0
+        draws = 0
+        for i in range(episodes):
+            result, _ = simulate_game(train=True)
+            if result == 'X':
+                wins_x += 1
+            elif result == 'O':
+                wins_o += 1
+            elif result == 'Draw':
+                draws += 1
+            progress = (i+1) / episodes * 100
+            data = json.dumps({"progress": progress, "wins_x": wins_x, "wins_o": wins_o, "draws": draws})
+            yield f"data: {data}\n\n"
+            # Optional: add a tiny delay to help the browser update UI
+            # time.sleep(0.001)
+    return Response(generate(), mimetype='text/event-stream')
 
-    training_stats['episodes'] += episodes
-    training_stats['wins'] += wins
-    training_stats['losses'] += losses
-    training_stats['draws'] += draws
-    training_stats['history'].append(
-        (training_stats['episodes'], training_stats['wins'], training_stats['losses'], training_stats['draws'])
-    )
-    
-    save_training_data()
-    
-    session['message'] = (f"Trained for {episodes} episodes: Wins {wins}, Losses {losses}, Draws {draws}.")
-    return redirect(url_for('index'))
+# Save layout and Q‑table data (removed from UI per instructions; endpoints remain)
+@app.route('/save', methods=['POST'])
+def save():
+    data = request.get_json()
+    layout = data.get("layout", {})
+    with open("tictactoe_data.json", "w") as f:
+        json.dump({"q_table": q_table, "layout": layout}, f)
+    return jsonify({"status": "Data saved"})
 
-@app.route('/plot.png')
-def plot_png():
-    history = training_stats['history']
-    if not history:
-        fig, ax = plt.subplots(figsize=(6, 4))
-        ax.text(0.5, 0.5, "No training data", horizontalalignment='center',
-                verticalalignment='center', fontsize=16)
+# Load saved layout and Q‑table data (removed from UI per instructions; endpoints remain)
+@app.route('/load', methods=['GET'])
+def load():
+    if os.path.exists("tictactoe_data.json"):
+        with open("tictactoe_data.json", "r") as f:
+            data = json.load(f)
+        global q_table
+        q_table = data.get("q_table", {})
+        layout = data.get("layout", {})
+        return jsonify({"status": "Data loaded", "layout": layout})
     else:
-        episodes, wins, losses, draws = zip(*history)
-        fig, ax = plt.subplots(figsize=(6, 4))
-        ax.plot(episodes, wins, label="Wins", color="green")
-        ax.plot(episodes, losses, label="Losses", color="red")
-        ax.plot(episodes, draws, label="Draws", color="blue")
-        ax.set_xlabel("Total Episodes")
-        ax.set_ylabel("Cumulative Count")
-        ax.set_title("Training Progress")
-        ax.legend()
-        ax.grid(True)
-
-    png_image = io.BytesIO()
-    plt.tight_layout()
-    plt.savefig(png_image, format='png')
-    plt.close(fig)
-    png_image.seek(0)
-    return Response(png_image.getvalue(), mimetype='image/png')
+        return jsonify({"status": "No saved data found", "layout": {}})
 
 if __name__ == '__main__':
     app.run(debug=True)
