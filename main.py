@@ -95,7 +95,7 @@ class TicTacToeGeneral:
         return state
 
 class QLearningAgent:
-    def __init__(self, epsilon=1.0, epsilon_decay_rate=0.0001, min_epsilon=0.01, alpha=0.5, alpha_decay_rate=0.00001, min_alpha=0.1, gamma=0.9):
+    def __init__(self, epsilon=1.0, epsilon_decay_rate=0.00001, min_epsilon=0.01, alpha=0.5, alpha_decay_rate=0.000001, min_alpha=0.1, gamma=0.9):
         self.q_table = {}
         self.epsilon = epsilon
         self.epsilon_decay_rate = epsilon_decay_rate
@@ -141,7 +141,15 @@ class QLearningAgent:
 
 def create_model(rows, cols, k):
     return {
-        "agent": QLearningAgent(epsilon=1.0, epsilon_decay_rate=0.0001, min_epsilon=0.01, alpha=0.5, alpha_decay_rate=0.00001, min_alpha=0.1),
+        "agent": QLearningAgent(
+            epsilon=1.0,
+            epsilon_decay_rate=0.00001,  # Reduced epsilon decay
+            min_epsilon=0.01,         # Increased min_epsilon
+            alpha=0.5,
+            alpha_decay_rate=0.000001, # Reduced alpha decay
+            min_alpha=0.1,
+            gamma=0.9
+        ),
         "game": TicTacToeGeneral(rows, cols, k),
         "training_stats": {"X": 0, "O": 0, "draw": 0, "episodes": 0},
         "latest_results": deque(maxlen=1000),
@@ -323,7 +331,7 @@ def index():
                     rows, cols, k = 3, 3, 3
                 new_key = (rows, cols, k)
                 if new_key not in models:
-                    models[new_key] = create_model(rows, cols, k)
+                    models[new_key] = create_model(rows=rows, cols=cols, k=k) # Pass rows, cols, k to create_model
                 current_model_key = new_key
                 model["game"].reset(rows=rows, cols=cols, k=k)
                 message = f"Board settings updated: {rows}x{cols} with {k} in a row to win. Board reset."
@@ -449,7 +457,7 @@ def index():
                   </div>
                   <div class="form-group">
                     <label for="episodes">Episodes:</label>
-                    <input type="number" id="episodes" class="form-control" value="5000" min="1">
+                    <input type="number" id="episodes" class="form-control" value="10000" min="1"> <!-- Increased default episodes -->
                   </div>
                   <button id="trainBtn" class="btn btn-primary btn-block">Train Agent</button>
                   <button id="cancelTrainBtn" class="btn btn-danger btn-block mt-2">Cancel Training</button>
@@ -845,9 +853,9 @@ def train():
     model = models[current_model_key]
     data = request.get_json()
     try:
-        episodes = int(data.get("episodes", 5000)) # Default episodes increased
+        episodes = int(data.get("episodes", 10000)) # Default episodes increased to 10000
     except (ValueError, TypeError):
-        episodes = 5000
+        episodes = 10000
 
     if training_thread is not None and training_thread.is_alive():
         return jsonify({"message": "Training is already in progress."})
