@@ -95,12 +95,17 @@ class TicTacToeGeneral:
         return state
 
 class QLearningAgent:
-    def __init__(self, epsilon=0.1, alpha=0.5, gamma=0.9):
+    def __init__(self, epsilon=1.0, epsilon_decay_rate=0.0001, min_epsilon=0.01, alpha=0.5, alpha_decay_rate=0.00001, min_alpha=0.1, gamma=0.9):
         self.q_table = {}
         self.epsilon = epsilon
+        self.epsilon_decay_rate = epsilon_decay_rate
+        self.min_epsilon = min_epsilon
         self.alpha = alpha
+        self.alpha_decay_rate = alpha_decay_rate
+        self.min_alpha = min_alpha
         self.gamma = gamma
         self.lock = threading.Lock()
+        self.episodes_trained = 0
 
     def get_q_value(self, state, action):
         with self.lock:
@@ -130,10 +135,13 @@ class QLearningAgent:
             else:
                 target = reward
             self.q_table[(state, action)] = old_q + self.alpha * (target - old_q)
+            self.episodes_trained += 1
+            self.epsilon = max(self.min_epsilon, self.epsilon - self.epsilon_decay_rate)
+            self.alpha = max(self.min_alpha, self.alpha - self.alpha_decay_rate)
 
 def create_model(rows, cols, k):
     return {
-        "agent": QLearningAgent(),
+        "agent": QLearningAgent(epsilon=1.0, epsilon_decay_rate=0.0001, min_epsilon=0.01, alpha=0.5, alpha_decay_rate=0.00001, min_alpha=0.1),
         "game": TicTacToeGeneral(rows, cols, k),
         "training_stats": {"X": 0, "O": 0, "draw": 0, "episodes": 0},
         "latest_results": deque(maxlen=1000),
@@ -174,11 +182,12 @@ def self_play_episode():
         next_player = 'O' if current_player == 'X' else 'X'
         next_state = env.get_game_state(next_player)
         if env.current_winner:
+            winner = env.current_winner
             agent_instance.update_q_table(current_state, action, 1, next_state, True)
             if last_move[next_player] is not None:
                 opponent_state, opponent_action = last_move[next_player]
                 agent_instance.update_q_table(opponent_state, opponent_action, -1, next_state, True)
-            return current_player
+            return winner
         elif env.is_board_full():
             agent_instance.update_q_table(current_state, action, 0, next_state, True)
             return "draw"
@@ -197,17 +206,26 @@ def train_agent(episodes=1000):
         with global_lock:
             model["training_progress"]["start_time"] = start_time
 
+    agent_instance = model["agent"] # Get agent instance here
+
     try:
-        for _ in range(episodes):
+        for episode_num in range(episodes): # Enumerate episodes
             if training_stop_event.is_set():
                 logger.info("Training cancelled.")
                 break
+
+            logger.debug(f"Starting episode {episode_num+1}, epsilon: {agent_instance.epsilon:.4f}, alpha: {agent_instance.alpha:.4f}") # Log epsilon and alpha
+
             result = self_play_episode()
             with global_lock:
                 model["training_stats"][result] += 1
                 model["training_stats"]["episodes"] += 1
                 model["latest_results"].append(result)
                 model["training_progress"]["session_completed"] += 1
+
+                if (episode_num + 1) % 100 == 0: # Log stats every 100 episodes
+                    logger.info(f"Episode {episode_num+1}/{episodes} Stats - X: {model['training_stats']['X']}, O: {model['training_stats']['O']}, Draw: {model['training_stats']['draw']}")
+
     except Exception as e:
         logger.exception("Exception during training: %s", e)
     finally:
@@ -431,7 +449,7 @@ def index():
                   </div>
                   <div class="form-group">
                     <label for="episodes">Episodes:</label>
-                    <input type="number" id="episodes" class="form-control" value="1000" min="1">
+                    <input type="number" id="episodes" class="form-control" value="5000" min="1">
                   </div>
                   <button id="trainBtn" class="btn btn-primary btn-block">Train Agent</button>
                   <button id="cancelTrainBtn" class="btn btn-danger btn-block mt-2">Cancel Training</button>
@@ -827,9 +845,9 @@ def train():
     model = models[current_model_key]
     data = request.get_json()
     try:
-        episodes = int(data.get("episodes", 1000))
+        episodes = int(data.get("episodes", 5000)) # Default episodes increased
     except (ValueError, TypeError):
-        episodes = 1000
+        episodes = 5000
 
     if training_thread is not None and training_thread.is_alive():
         return jsonify({"message": "Training is already in progress."})
