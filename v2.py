@@ -55,7 +55,7 @@ class AntiTicTacToe:
         elif all(cell != 0 for cell in self.board):
             reward = 0
             done = True
-            self.winner = 0
+            self.winner = 0  # Draw
         else:
             reward = 0
             done = False
@@ -321,14 +321,20 @@ class DQNAgent:
         self.save_model(model_path)
         logger.info("Training complete.")
 
-    def evaluate(self, num_episodes: int = 1000) -> None:
-        env = AntiTicTacToe()
+    def evaluate_against_random(self, num_episodes: int = 1000) -> None:
         wins, losses, draws = 0, 0, 0
-        with torch.no_grad():
-            for _ in range(num_episodes):
-                state = env.reset()
-                done = False
-                while not done:
+        for _ in range(num_episodes):
+            env = AntiTicTacToe()
+            state = env.reset()
+            # Randomly assign agent as player 1 or 2.
+            agent_player = random.choice([1, 2])
+            # If agent is not starting, let the random opponent move first.
+            if env.current_player != agent_player:
+                legal_moves = env.available_moves()
+                state, _, _ = env.step(random.choice(legal_moves))
+            done = False
+            while not done:
+                if env.current_player == agent_player:
                     canonical_state, mapping = canonicalize_state_with_transform(state)
                     inverse_mapping = [None] * 9
                     for i, m in enumerate(mapping):
@@ -341,16 +347,53 @@ class DQNAgent:
                     canonical_move = best[1]
                     actual_move = inverse_mapping[canonical_move]
                     state, reward, done = env.step(actual_move)
-                if reward == -1:
-                    if env.winner == 1:
-                        wins += 1
-                    elif env.winner == 2:
-                        losses += 1
                 else:
-                    draws += 1
+                    legal_moves = env.available_moves()
+                    state, reward, done = env.step(random.choice(legal_moves))
+            if reward == -1:
+                if env.winner == agent_player:
+                    wins += 1
+                else:
+                    losses += 1
+            else:
+                draws += 1
         total = wins + losses + draws
-        logger.info("Evaluation over %d episodes: Wins: %d (%.2f%%), Losses: %d (%.2f%%), Draws: %d (%.2f%%)",
+        logger.info("Evaluation Against Random over %d episodes: Wins: %d (%.2f%%), Losses: %d (%.2f%%), Draws: %d (%.2f%%)",
                     total, wins, wins/total*100, losses, losses/total*100, draws, draws/total*100)
+
+    def evaluate_self_play(self, num_episodes: int = 1000) -> None:
+        wins_player1, wins_player2, draws = 0, 0, 0
+        for _ in range(num_episodes):
+            env = AntiTicTacToe()
+            state = env.reset()
+            done = False
+            while not done:
+                canonical_state, mapping = canonicalize_state_with_transform(state)
+                inverse_mapping = [None] * 9
+                for i, m in enumerate(mapping):
+                    inverse_mapping[m] = i
+                legal_moves = env.available_moves()
+                state_tensor = state_to_tensor(canonical_state)
+                q_values = self.net(state_tensor).detach().cpu().numpy()
+                legal_moves_canonical = [(m, mapping[m]) for m in legal_moves]
+                best = max(legal_moves_canonical, key=lambda x: q_values[x[1]])
+                canonical_move = best[1]
+                actual_move = inverse_mapping[canonical_move]
+                state, reward, done = env.step(actual_move)
+            if reward == -1:
+                if env.winner == 1:
+                    wins_player1 += 1
+                elif env.winner == 2:
+                    wins_player2 += 1
+            else:
+                draws += 1
+        total = wins_player1 + wins_player2 + draws
+        logger.info("Self-Play Evaluation over %d episodes: Player1 Wins: %d (%.2f%%), Player2 Wins: %d (%.2f%%), Draws: %d (%.2f%%)",
+                    total, wins_player1, wins_player1/total*100, wins_player2, wins_player2/total*100, draws, draws/total*100)
+
+    def evaluate(self, num_episodes: int = 1000) -> None:
+        self.evaluate_against_random(num_episodes)
+        self.evaluate_self_play(num_episodes)
 
     def play(self) -> None:
         env = AntiTicTacToe()
