@@ -1,0 +1,2109 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enhanced Student Performance Analyzer</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js" defer></script>
+    <script src='https://unpkg.com/simple-statistics@7.8.3/dist/simple-statistics.min.js' defer></script>
+
+    <style>
+        :root {
+            --bs-primary-rgb: 0, 123, 255;
+            --bs-danger-rgb: 220, 53, 69;
+            --bs-info-rgb: 23, 162, 184;
+            --bs-success-rgb: 40, 167, 69;
+            --bs-secondary-rgb: 108, 117, 125;
+            --bs-warning-rgb: 255, 193, 7;
+            --bs-orange-rgb: 253, 126, 20;
+            --app-purple-rgb: 111, 66, 193;
+            --app-pink-rgb: 214, 51, 132;
+
+            --chart-highlight-alpha: 0.8;
+            --chart-default-alpha: 0.65;
+            --bs-border-radius: 0.375rem;
+            --bs-border-radius-sm: 0.25rem;
+            --bs-border-radius-lg: 0.5rem;
+            --bs-border-radius-pill: 50rem;
+
+            --anim-fast: 0.2s;
+            --anim-medium: 0.4s;
+            --anim-slow: 0.6s;
+        }
+
+        [data-bs-theme="light"] {
+             --bs-body-bg: #f8f9fa;
+             --bs-body-color: #212529;
+             --bs-border-color: #dee2e6;
+             --bs-border-color-translucent: rgba(0, 0, 0, 0.1);
+             --bs-emphasis-color: #000;
+             --bs-secondary-color: #6c757d;
+             --card-bg: var(--bs-white);
+             --list-group-hover-bg: #f0f2f5;
+             --chart-highlight-color: rgba(var(--bs-danger-rgb), var(--chart-highlight-alpha));
+             --chart-default-color: rgba(var(--bs-primary-rgb), var(--chart-default-alpha));
+             --chart-border-color: rgba(var(--bs-primary-rgb), 1);
+             --chart-highlight-border-color: rgba(var(--bs-danger-rgb), 1);
+             --chart-axis-color: #495057;
+             --chart-grid-color: rgba(0, 0, 0, 0.08);
+             --chart-line-color: rgba(var(--app-purple-rgb), 0.9);
+             --chart-line-point-color: rgba(var(--app-purple-rgb), 1);
+             --text-success-emphasis: #198754;
+             --text-warning-emphasis: #c55a11;
+             --list-group-bg: var(--bs-white);
+             --tooltip-bg: #212529;
+             --tooltip-color: var(--bs-white);
+             --footer-bg: rgba(var(--bs-secondary-rgb), 0.02);
+             --navbar-bg: #ffffff;
+             --navbar-color: #343a40;
+             --navbar-brand-color: var(--bs-primary);
+             --theme-toggle-icon-color: var(--bs-primary);
+             --theme-toggle-icon-hover-color: var(--bs-orange);
+             --card-header-bg: rgba(var(--bs-primary-rgb), 0.04);
+             --table-striped-bg: rgba(0, 0, 0, 0.03);
+             --table-border-color: var(--bs-border-color);
+             --table-hover-bg: rgba(0, 0, 0, 0.05);
+        }
+
+        [data-bs-theme="dark"] {
+            --bs-body-bg: #1a1d20;
+            --bs-body-color: #dee2e6;
+            --bs-border-color: #495057;
+            --bs-border-color-translucent: rgba(255, 255, 255, 0.1);
+            --bs-emphasis-color: #f8f9fa;
+            --bs-secondary-color: #adb5bd;
+            --card-bg: #2b3035;
+            --list-group-hover-bg: #343a40;
+            --chart-highlight-color: rgba(var(--bs-danger-rgb), var(--chart-highlight-alpha));
+            --chart-default-color: rgba(var(--bs-primary-rgb), var(--chart-default-alpha));
+            --chart-border-color: rgba(var(--bs-primary-rgb), 1);
+            --chart-highlight-border-color: rgba(var(--bs-danger-rgb), 1);
+            --chart-axis-color: #adb5bd;
+            --chart-grid-color: rgba(255, 255, 255, 0.1);
+            --chart-line-color: rgba(var(--bs-warning-rgb), 0.9);
+            --chart-line-point-color: rgba(var(--bs-warning-rgb), 1);
+            --text-success-emphasis: #20c997;
+            --text-warning-emphasis: #ffca2c;
+            --list-group-bg: #2b3035;
+            --tooltip-bg: #f8f9fa;
+            --tooltip-color: #212529;
+            --footer-bg: rgba(var(--bs-secondary-rgb), 0.05);
+            --navbar-bg: #212529;
+            --navbar-color: rgba(255, 255, 255, 0.75);
+            --navbar-brand-color: var(--bs-white);
+            --theme-toggle-icon-color: var(--bs-warning);
+            --theme-toggle-icon-hover-color: #ffdd80;
+            --card-header-bg: rgba(var(--bs-primary-rgb), 0.1);
+            --table-striped-bg: rgba(255, 255, 255, 0.05);
+            --table-border-color: var(--bs-border-color);
+            --table-hover-bg: rgba(255, 255, 255, 0.075);
+        }
+
+        html { scroll-behavior: smooth; }
+        body {
+             transition: background-color var(--anim-medium) ease, color var(--anim-medium) ease;
+             padding-top: 5rem;
+             background-color: var(--bs-body-bg);
+             color: var(--bs-body-color);
+             min-height: 100vh;
+             display: flex;
+             flex-direction: column;
+             font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", "Noto Sans", "Liberation Sans", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+             overflow-x: hidden;
+        }
+        .container-lg { flex-grow: 1; width: 100%; }
+        header { margin-bottom: 2.5rem; }
+        #inputCard { margin-bottom: 2.5rem; }
+        #resultsContainer { margin-top: 2.5rem; }
+        footer {
+            margin-top: 4rem;
+            padding: 2rem 1rem;
+            background-color: var(--footer-bg);
+            border-top: 1px solid var(--bs-border-color-translucent);
+            transition: background-color var(--anim-medium) ease, border-color var(--anim-medium) ease;
+         }
+
+        .navbar {
+            box-shadow: 0 2px 5px rgba(0,0,0,.1);
+            transition: background-color var(--anim-medium) ease, box-shadow var(--anim-medium) ease;
+            background-color: var(--navbar-bg);
+            border-bottom: 1px solid var(--bs-border-color-translucent);
+        }
+        .navbar .navbar-brand {
+            color: var(--navbar-brand-color);
+            transition: color var(--anim-fast) ease;
+        }
+        .navbar .navbar-brand:hover {
+            color: var(--bs-primary);
+        }
+        .navbar .nav-link {
+            color: var(--navbar-color);
+            transition: color var(--anim-fast) ease;
+        }
+        .navbar .nav-link:hover {
+            color: var(--bs-emphasis-color);
+        }
+        .theme-toggle-btn {
+            color: var(--theme-toggle-icon-color);
+            transition: color var(--anim-fast) ease, transform var(--anim-fast) ease;
+        }
+        .theme-toggle-btn:hover {
+            color: var(--theme-toggle-icon-hover-color);
+            transform: scale(1.1) rotate(10deg);
+        }
+
+        .card {
+            margin-bottom: 1.5rem;
+            transition: box-shadow var(--anim-medium) ease, background-color var(--anim-medium) ease, transform var(--anim-medium) ease;
+            border: 1px solid var(--bs-border-color);
+            background-color: var(--card-bg);
+            border-radius: var(--bs-border-radius-lg);
+            box-shadow: 0 .125rem .25rem rgba(0,0,0,.075);
+            overflow: hidden;
+        }
+        .card:hover {
+            box-shadow: 0 .75rem 1.5rem rgba(0,0,0,.12);
+            transform: translateY(-5px);
+        }
+        [data-bs-theme="dark"] .card:hover {
+            box-shadow: 0 .75rem 1.5rem rgba(0, 0, 0, .25);
+        }
+        .card-header {
+            background-color: var(--card-header-bg);
+            border-bottom: 1px solid var(--bs-border-color);
+            font-weight: 500;
+            padding: 1rem 1.25rem;
+            transition: background-color var(--anim-medium) ease, border-color var(--anim-medium) ease;
+        }
+        .card-header i {
+            color: var(--bs-primary);
+            opacity: 0.9;
+        }
+        [data-bs-theme="dark"] .card-header i {
+             color: #6ea8fe;
+        }
+        .results-section .card-header i.bi-people-fill { color: var(--bs-info); }
+        [data-bs-theme="dark"] .results-section .card-header i.bi-people-fill { color: #6edff6; }
+        .visualization-section .card-header i.bi-bar-chart-steps { color: var(--bs-success); }
+        [data-bs-theme="dark"] .visualization-section .card-header i.bi-bar-chart-steps { color: #20c997; }
+        .frequency-table-section .card-header i.bi-table { color: var(--bs-orange); }
+        [data-bs-theme="dark"] .frequency-table-section .card-header i.bi-table { color: #fd7e14; }
+        .percentile-slider-section .card-header i.bi-sliders { color: var(--app-purple-rgb); }
+        [data-bs-theme="dark"] .percentile-slider-section .card-header i.bi-sliders { color: #a370f7; }
+
+
+        .card-body { padding: 1.5rem; }
+
+        .form-label { font-weight: 500; }
+        .form-control, .form-select, .form-range {
+            transition: border-color var(--anim-fast) ease-in-out, box-shadow var(--anim-fast) ease-in-out;
+        }
+        .form-control.is-invalid, .form-select.is-invalid {
+            border-color: var(--bs-danger);
+            padding-right: calc(1.5em + .75rem) !important;
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' width='12' height='12' fill='none' stroke='%23dc3545'%3e%3ccircle cx='6' cy='6' r='4.5'/%3e%3cpath stroke-linejoin='round' d='M5.8 3.6h.4L6 6.5z'/%3e%3ccircle cx='6' cy='8.2' r='.6' fill='%23dc3545' stroke='none'/%3e%3c/svg%3e") !important;
+            background-repeat: no-repeat !important;
+            background-position: right calc(.375em + .1875rem) center !important;
+            background-size: calc(.75em + .375rem) calc(.75em + .375rem) !important;
+            box-shadow: 0 0 0 0.25rem rgba(var(--bs-danger-rgb), 0.25);
+        }
+        [data-bs-theme="dark"] .form-control.is-invalid,
+        [data-bs-theme="dark"] .form-select.is-invalid {
+             border-color: var(--bs-danger);
+             background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' width='12' height='12' fill='none' stroke='%23dc3545'%3e%3ccircle cx='6' cy='6' r='4.5'/%3e%3cpath stroke-linejoin='round' d='M5.8 3.6h.4L6 6.5z'/%3e%3ccircle cx='6' cy='8.2' r='.6' fill='%23dc3545' stroke='none'/%3e%3c/svg%3e") !important;
+        }
+        .form-control:focus, .form-select:focus, .form-range:focus {
+            box-shadow: 0 0 0 0.25rem rgba(var(--bs-primary-rgb), 0.25);
+            border-color: rgba(var(--bs-primary-rgb), 0.8);
+        }
+        .form-control.is-invalid:focus, .form-select.is-invalid:focus {
+             border-color: var(--bs-danger);
+             box-shadow: 0 0 0 0.25rem rgba(var(--bs-danger-rgb), 0.25);
+        }
+
+        .invalid-feedback {
+            display: none;
+            width: 100%;
+            margin-top: .25rem;
+            font-size: .875em;
+            color: var(--bs-danger);
+            animation: fadeIn var(--anim-fast) ease-out;
+        }
+        .is-invalid ~ .invalid-feedback { display: block; }
+
+        #scoreCountDisplay {
+            font-size: 0.9em;
+            margin-top: 0.5rem;
+            color: var(--bs-secondary-color);
+            font-weight: 500;
+            background-color: rgba(var(--bs-secondary-rgb), 0.05);
+            padding: 0.3rem 0.6rem;
+            border-radius: var(--bs-border-radius);
+            display: inline-block;
+            transition: background-color var(--anim-medium) ease, color var(--anim-medium) ease;
+         }
+        #errorMessage {
+            display: none;
+            align-items: center;
+            gap: 0.5rem;
+            animation: fadeIn var(--anim-fast) ease-out;
+        }
+         #errorMessage i { flex-shrink: 0; font-size: 1.2em; }
+
+        .loading-spinner { display: none; width: 1.1rem; height: 1.1rem; vertical-align: text-bottom; }
+        .btn .loading-spinner { margin-right: 0.4rem; }
+        .btn {
+            transition: all var(--anim-fast) ease-in-out;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        .btn:active {
+            transform: translateY(0px);
+            box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+        }
+        button svg, button i { transition: transform var(--anim-fast) ease-in-out, display 0.1s ease-in-out; vertical-align: -0.125em; }
+        .btn-lg { padding: .6rem 1.2rem; font-size: 1rem; }
+        .btn-primary {
+            --bs-btn-bg: rgb(var(--bs-primary-rgb));
+            --bs-btn-border-color: rgb(var(--bs-primary-rgb));
+            --bs-btn-hover-bg: #0056b3;
+            --bs-btn-hover-border-color: #004a99;
+            --bs-btn-active-bg: #004a99;
+            --bs-btn-active-border-color: #003d80;
+        }
+        .rounded-pill { border-radius: var(--bs-border-radius-pill); }
+
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes slideInDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes slideInLeft { from { opacity: 0; transform: translateX(-30px); } to { opacity: 1; transform: translateX(0); } }
+        @keyframes slideInRight { from { opacity: 0; transform: translateX(30px); } to { opacity: 1; transform: translateX(0); } }
+
+        header h1 { animation: fadeInUp var(--anim-medium) ease-out forwards; }
+        header p.lead { animation: fadeInUp var(--anim-medium) ease-out 0.1s forwards; opacity: 0; }
+        #inputCard { animation: fadeInUp var(--anim-slow) ease-out 0.2s forwards; opacity: 0; }
+
+        .results-fade-in {
+            animation: fadeIn var(--anim-fast) ease-in-out forwards;
+        }
+        #resultsContainer .col-xl-5 .card {
+            animation: slideInLeft var(--anim-medium) ease-out 0.1s forwards;
+            opacity: 0;
+        }
+        #resultsContainer .col-xl-7 .card {
+            animation: slideInRight var(--anim-medium) ease-out 0.2s forwards;
+            opacity: 0;
+        }
+         #resultsContainer .visualization-section .card,
+         #resultsContainer .frequency-table-section .card,
+         #resultsContainer .percentile-slider-section .card {
+            animation: fadeInUp var(--anim-medium) ease-out 0.3s forwards;
+            opacity: 0;
+        }
+
+        .results-section .list-group-item {
+            background-color: transparent;
+            border: 0;
+            border-bottom: 1px solid var(--bs-border-color-translucent);
+            padding: 1rem 0.25rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            transition: background-color var(--anim-fast) ease-in-out, border-color var(--anim-medium) ease;
+        }
+         .results-section .list-group-item:hover {
+             background-color: var(--list-group-hover-bg);
+         }
+        .results-section .list-group-item:last-child { border-bottom: 0; }
+
+        .results-section strong {
+             font-weight: 500;
+             color: var(--bs-emphasis-color);
+             display: inline-flex;
+             align-items: center;
+             gap: 0.5rem;
+             cursor: help;
+             transition: color var(--anim-medium) ease;
+        }
+         .results-section strong > i {
+             color: var(--bs-primary);
+             font-size: 1.1em;
+             opacity: 0.8;
+             flex-shrink: 0;
+             transition: color var(--anim-medium) ease;
+         }
+        [data-bs-theme="dark"] .results-section strong > i { color: #6ea8fe; }
+        .results-section strong[data-term-group="class"] > i { color: var(--bs-info); }
+        [data-bs-theme="dark"] .results-section strong[data-term-group="class"] > i { color: #6edff6; }
+
+        .results-section span.stat-value {
+            font-weight: 500;
+            color: var(--bs-secondary-color);
+            text-align: right;
+            font-size: 0.95rem;
+            flex-shrink: 0;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+            transition: color var(--anim-medium) ease;
+        }
+        #yourScoreOutput.stat-value {
+            font-weight: 600;
+            font-size: 1.15rem;
+            color: var(--bs-primary);
+        }
+        [data-bs-theme="dark"] #yourScoreOutput.stat-value { color: #6ea8fe; }
+
+        .text-positive { color: var(--text-success-emphasis) !important; font-weight: 500; }
+        .text-negative { color: var(--text-warning-emphasis) !important; font-weight: 500; }
+        .text-secondary { color: var(--bs-secondary-color) !important; }
+        .stat-value i { vertical-align: -0.1em; font-size: 1.1em; }
+
+        .chart-container {
+            position: relative;
+            aspect-ratio: 16 / 9;
+            max-height: 500px;
+            width: 100%;
+            min-height: 300px;
+            animation: fadeIn var(--anim-slow) ease-out;
+        }
+        #distributionChart { max-width: 100%; max-height: 100%; }
+
+        .chart-message {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 200px;
+            text-align: center;
+            padding: 2rem;
+            border-radius: var(--bs-border-radius);
+            border: 1px dashed var(--bs-border-color);
+            background-color: rgba(var(--bs-secondary-rgb), 0.03);
+            color: var(--bs-secondary-color);
+            margin-top: 1rem;
+            transition: background-color var(--anim-medium) ease, color var(--anim-medium) ease, border-color var(--anim-medium) ease;
+            animation: fadeIn var(--anim-medium) ease-out;
+         }
+         .chart-message i {
+             font-size: 2.5rem;
+             margin-bottom: 0.75rem;
+             opacity: 0.6;
+             transition: color var(--anim-medium) ease;
+             animation: pulse 2s infinite ease-in-out;
+         }
+         .chart-message.alert-info {
+             background-color: rgba(var(--bs-info-rgb), 0.05);
+             color: var(--bs-info);
+             border-color: rgba(var(--bs-info-rgb), 0.2);
+             border-style: solid;
+         }
+          .chart-message.alert-info i { color: var(--bs-info); animation-name: pulse-info; }
+         .chart-message.alert-danger {
+             background-color: rgba(var(--bs-danger-rgb), 0.05);
+             color: var(--bs-danger);
+             border-color: rgba(var(--bs-danger-rgb), 0.3);
+             font-weight: 500;
+              border-style: solid;
+         }
+          .chart-message.alert-danger i { color: var(--bs-danger); animation-name: pulse-danger; }
+
+         #chartCaption {
+             font-size: 0.85em;
+             color: var(--bs-secondary-color);
+             transition: color var(--anim-medium) ease;
+             animation: fadeIn var(--anim-slow) ease-out;
+         }
+
+        .copy-feedback {
+            display: inline-block;
+            margin-left: 0.5rem;
+            font-size: 0.85em;
+            color: var(--bs-success);
+            opacity: 0;
+            transition: opacity var(--anim-fast) ease-in-out;
+            font-weight: normal;
+            vertical-align: baseline;
+        }
+        .copy-feedback.show { opacity: 1; }
+
+        .tooltip { --bs-tooltip-opacity: 1; --bs-tooltip-max-width: 300px; }
+        .tooltip .tooltip-inner {
+            background-color: var(--tooltip-bg);
+            color: var(--tooltip-color);
+            padding: 0.5rem 0.8rem;
+            border-radius: var(--bs-border-radius-sm);
+            font-size: 0.85rem;
+            box-shadow: 0 .25rem .5rem rgba(0,0,0,.15);
+            text-align: left;
+            border: 1px solid var(--bs-border-color-translucent);
+            transition: background-color var(--anim-medium) ease, color var(--anim-medium) ease, border-color var(--anim-medium) ease;
+        }
+        .tooltip .tooltip-arrow::before { border-top-color: var(--tooltip-bg); }
+        .tooltip.bs-tooltip-top .tooltip-arrow::before,
+        .tooltip.bs-tooltip-auto[data-popper-placement^="top"] .tooltip-arrow::before {
+            border-top-color: var(--tooltip-bg);
+            border-bottom: 0;
+            border-left: 1px solid var(--bs-border-color-translucent);
+            border-right: 1px solid var(--bs-border-color-translucent);
+        }
+        .tooltip.bs-tooltip-end .tooltip-arrow::before,
+        .tooltip.bs-tooltip-auto[data-popper-placement^="right"] .tooltip-arrow::before {
+             border-right-color: var(--tooltip-bg);
+             border-left: 0;
+             border-top: 1px solid var(--bs-border-color-translucent);
+             border-bottom: 1px solid var(--bs-border-color-translucent);
+        }
+        .tooltip.bs-tooltip-bottom .tooltip-arrow::before,
+        .tooltip.bs-tooltip-auto[data-popper-placement^="bottom"] .tooltip-arrow::before {
+             border-bottom-color: var(--tooltip-bg);
+             border-top: 0;
+             border-left: 1px solid var(--bs-border-color-translucent);
+             border-right: 1px solid var(--bs-border-color-translucent);
+        }
+        .tooltip.bs-tooltip-start .tooltip-arrow::before,
+        .tooltip.bs-tooltip-auto[data-popper-placement^="left"] .tooltip-arrow::before {
+             border-left-color: var(--tooltip-bg);
+             border-right: 0;
+             border-top: 1px solid var(--bs-border-color-translucent);
+             border-bottom: 1px solid var(--bs-border-color-translucent);
+        }
+
+        .frequency-table-container {
+            max-height: 400px;
+            overflow-y: auto;
+            border: 1px solid var(--bs-border-color);
+            border-radius: var(--bs-border-radius-sm);
+        }
+        .table { margin-bottom: 0; }
+        .table thead th {
+            position: sticky;
+            top: 0;
+            background-color: var(--card-bg);
+            z-index: 1;
+            border-bottom-width: 2px;
+            font-weight: 500;
+        }
+        .table-striped > tbody > tr:nth-of-type(odd) > * {
+            background-color: var(--table-striped-bg);
+        }
+        .table-hover > tbody > tr:hover > * {
+            background-color: var(--table-hover-bg);
+        }
+        .table td, .table th {
+            padding: 0.6rem 0.75rem;
+            vertical-align: middle;
+            font-size: 0.9rem;
+        }
+        .table th { text-align: center; }
+        .table td:first-child { text-align: center; }
+        .table td:last-child { text-align: center; font-weight: 500; }
+
+        .percentile-slider-output {
+            font-weight: 500;
+            color: var(--bs-primary);
+            background-color: rgba(var(--bs-primary-rgb), 0.1);
+            padding: 0.3rem 0.8rem;
+            border-radius: var(--bs-border-radius);
+            display: inline-block;
+            min-width: 100px;
+            text-align: center;
+        }
+        [data-bs-theme="dark"] .percentile-slider-output {
+            color: #6ea8fe;
+            background-color: rgba(var(--bs-primary-rgb), 0.2);
+        }
+        .form-range { cursor: pointer; }
+        .form-range:disabled { cursor: not-allowed; opacity: 0.5; }
+
+        @media (prefers-reduced-motion: reduce) {
+          html { scroll-behavior: auto; }
+          *, *::before, *::after {
+            animation-duration: 0.01ms !important;
+            animation-iteration-count: 1 !important;
+            transition-duration: 0.01ms !important;
+            scroll-behavior: auto !important;
+            animation-delay: 0ms !important;
+          }
+          .results-fade-in, .invalid-feedback, #errorMessage, .chart-message, #chartCaption, .chart-container, .copy-feedback.show {
+              animation-name: fadeIn !important;
+              animation-duration: 0.1s !important;
+              opacity: 1 !important;
+          }
+          .card:hover { transform: none; }
+          .btn:hover, .btn:active { transform: none; }
+          .theme-toggle-btn:hover { transform: none; }
+          .chart-message i { animation: none !important; }
+        }
+
+        @keyframes pulse {
+          0%, 100% { transform: scale(1); opacity: 0.6; }
+          50% { transform: scale(1.05); opacity: 0.8; }
+        }
+        @keyframes pulse-info {
+          0%, 100% { transform: scale(1); color: var(--bs-info); opacity: 0.6; }
+          50% { transform: scale(1.05); color: var(--bs-info); opacity: 0.9; }
+        }
+        @keyframes pulse-danger {
+          0%, 100% { transform: scale(1); color: var(--bs-danger); opacity: 0.7; }
+          50% { transform: scale(1.05); color: var(--bs-danger); opacity: 1.0; }
+        }
+
+    </style>
+</head>
+<body>
+
+    <nav class="navbar navbar-expand-lg fixed-top">
+        <div class="container-lg">
+            <a class="navbar-brand fw-bold d-flex align-items-center" href="#">
+                <i class="bi bi-clipboard-data-fill me-2 fs-4"></i>
+                Performance Analyzer
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto align-items-center">
+                    <li class="nav-item">
+                        <button id="themeToggleBtn" class="btn nav-link theme-toggle-btn" aria-label="Toggle theme">
+                            <i class="bi bi-sun-fill fs-5"></i>
+                        </button>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container-lg mt-5 pt-3">
+        <header class="text-center">
+            <h1 class="display-5 fw-bold">Student Performance Analysis</h1>
+            <p class="lead text-secondary">Input scores to instantly analyze performance and visualize the class distribution.</p>
+        </header>
+
+        <div class="card shadow-sm" id="inputCard">
+             <h5 class="card-header d-flex align-items-center">
+                 <i class="bi bi-keyboard-fill me-2"></i>Enter Marks
+             </h5>
+            <div class="card-body p-4 p-md-5">
+                <form id="marksForm" novalidate>
+                    <div class="row g-4 align-items-start">
+                        <div class="col-md-6 col-lg-4">
+                            <label for="yourScore" class="form-label">Your Score:</label>
+                            <input type="number" class="form-control form-control-lg" id="yourScore" name="yourScore" step="any" required min="0" placeholder="e.g., 78.5" inputmode="decimal" aria-describedby="yourScoreFeedback">
+                            <div id="yourScoreFeedback" class="invalid-feedback" aria-live="polite"></div>
+                        </div>
+                         <div class="col-md-6 col-lg-4">
+                            <label for="targetScore" class="form-label">Target/Passing Score:</label>
+                            <input type="number" class="form-control form-control-lg" id="targetScore" name="targetScore" step="any" min="0" placeholder="Optional, e.g., 70" inputmode="decimal" aria-describedby="targetScoreFeedback">
+                            <div id="targetScoreFeedback" class="invalid-feedback" aria-live="polite"></div>
+                        </div>
+                        <div class="col-lg-8">
+                            <label for="classScores" class="form-label">Class Scores:</label>
+                            <textarea class="form-control form-control-lg" id="classScores" name="classScores" rows="6" required placeholder="Enter all class scores here, separated by commas, spaces, or new lines (e.g., 85, 92, 71 65...)" aria-describedby="classScoresFeedback classScoresHelp scoreCountDisplay"></textarea>
+                            <div id="classScoresFeedback" class="invalid-feedback" aria-live="polite"></div>
+                            <div id="classScoresHelp" class="form-text mt-2 text-muted small">Use commas, spaces, or line breaks as separators. Non-numeric entries will be ignored.</div>
+                            <div id="scoreCountDisplay" aria-live="polite" role="status" class="mt-2">Valid scores detected: 0</div>
+                        </div>
+                    </div>
+                    <div id="errorMessage" class="alert alert-danger mt-4" role="alert" aria-live="assertive">
+                        <i class="bi bi-exclamation-triangle-fill"></i>
+                        <span id="errorMessageText"></span>
+                    </div>
+                    <div class="d-flex flex-wrap justify-content-center gap-3 mt-4 pt-4 border-top border-secondary-subtle">
+                        <button type="submit" class="btn btn-primary btn-lg px-sm-5 px-4 rounded-pill">
+                            <span class="spinner-border spinner-border-sm loading-spinner" role="status" aria-hidden="true"></span>
+                            <i class="bi bi-bar-chart-line-fill me-1 analyze-icon"></i>
+                            <span class="analyze-text">Analyze Performance</span>
+                        </button>
+                        <button type="reset" class="btn btn-outline-secondary btn-lg px-sm-4 px-3 rounded-pill">
+                            <i class="bi bi-arrow-clockwise me-1"></i>Clear All
+                        </button>
+                         <button type="button" id="exampleDataBtn" class="btn btn-outline-success btn-lg px-sm-4 px-3 rounded-pill">
+                            <i class="bi bi-magic me-1"></i>Load Example
+                        </button>
+                        <button type="button" id="copyResultsBtn" class="btn btn-outline-info btn-lg px-sm-4 px-3 rounded-pill" style="display: none;">
+                             <i class="bi bi-clipboard-check me-1"></i>Copy Stats
+                             <span class="copy-feedback" id="copyFeedback">Copied!</span>
+                         </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div id="resultsContainer" style="display: none;" class="results-fade-in">
+            <h2 class="h4 mb-4 text-center fw-medium">Analysis Summary</h2>
+            <div class="row g-4 justify-content-center">
+
+                <div class="col-12 col-xl-5 d-flex">
+                    <div class="card results-section shadow-sm w-100">
+                         <h5 class="card-header d-flex align-items-center"><i class="bi bi-person-badge me-2"></i>Your Performance Metrics</h5>
+                        <div class="card-body p-4 d-flex flex-column">
+                            <ul class="list-group list-group-flush flex-grow-1">
+                                <li class="list-group-item">
+                                    <strong data-bs-toggle="tooltip" data-bs-placement="top" title="The individual score you entered for analysis."><i class="bi bi-journal-bookmark-fill"></i>Your Score:</strong>
+                                    <span id="yourScoreOutput" class="stat-value">-</span>
+                                </li>
+                                <li class="list-group-item">
+                                    <strong data-bs-toggle="tooltip" data-bs-placement="top" title="Your position relative to other scores in the class (Rank 1 indicates the highest score). Equal scores share the highest rank in their group."><i class="bi bi-trophy-fill"></i>Rank:</strong>
+                                    <span id="rankOutput" class="stat-value">-</span>
+                                </li>
+                                <li class="list-group-item">
+                                    <strong data-bs-toggle="tooltip" data-bs-placement="top" title="The percentage of class scores that are strictly lower than your score. E.g., 80th percentile means your score is higher than 80% of the class."><i class="bi bi-graph-up-arrow"></i>Percentile:</strong>
+                                    <span id="percentileOutput" class="stat-value">-</span>
+                                </li>
+                                <li class="list-group-item">
+                                    <strong data-bs-toggle="tooltip" data-bs-placement="top" title="Measures how many standard deviations your score is away from the class mean (average). Positive values are above average, negative values are below. ≈0 is average. |Z| > 2 or 3 might indicate an unusual score relative to the group. (Requires n>=2 & non-zero Std Dev)"><i class="bi bi-sign-intersection-y-fill"></i>Z-Score:</strong>
+                                    <span id="zScoreOutput" class="stat-value">-</span>
+                                </li>
+                                <li class="list-group-item">
+                                    <strong data-bs-toggle="tooltip" data-bs-placement="top" title="How your score compares to the calculated class average (mean)."><i class="bi bi-arrows-expand"></i>vs. Class Average:</strong>
+                                    <span id="vsAverageOutput" class="stat-value">-</span>
+                                </li>
+                                <li class="list-group-item">
+                                    <strong data-bs-toggle="tooltip" data-bs-placement="top" title="How your score compares to the middle score (median) of the class."><i class="bi bi-arrows-collapse"></i>vs. Class Median:</strong>
+                                    <span id="vsMedianOutput" class="stat-value">-</span>
+                                </li>
+                                <li class="list-group-item" id="vsTargetRow" style="display: none;">
+                                    <strong data-bs-toggle="tooltip" data-bs-placement="top" title="How your score compares to the target/passing score you entered."><i class="bi bi-bullseye"></i>vs. Target Score (<span id="targetScoreValue"></span>):</strong>
+                                    <span id="vsTargetOutput" class="stat-value">-</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-12 col-xl-7 d-flex">
+                     <div class="card results-section shadow-sm w-100">
+                         <h5 class="card-header d-flex align-items-center"><i class="bi bi-people-fill me-2"></i>Overall Class Statistics</h5>
+                        <div class="card-body p-4 d-flex flex-column">
+                            <ul class="list-group list-group-flush flex-grow-1">
+                                <li class="list-group-item">
+                                    <strong data-term-group="class" data-bs-toggle="tooltip" data-bs-placement="top" title="The total number of valid, numeric scores included in the analysis."><i class="bi bi-person-check-fill"></i>Class Size (n):</strong>
+                                    <span id="countOutput" class="stat-value">-</span>
+                                </li>
+                                <li class="list-group-item">
+                                    <strong data-term-group="class" data-bs-toggle="tooltip" data-bs-placement="top" title="The arithmetic average of all class scores (sum of scores divided by the count). Sensitive to outliers."><i class="bi bi-calculator"></i>Mean (Average):</strong>
+                                    <span id="averageOutput" class="stat-value">-</span>
+                                </li>
+                                <li class="list-group-item">
+                                    <strong data-term-group="class" data-bs-toggle="tooltip" data-bs-placement="top" title="The middle value when all class scores are sorted (50th Percentile). Less sensitive to extreme scores (outliers) than the mean."><i class="bi bi-distribute-vertical"></i>Median (Q2):</strong>
+                                    <span id="medianOutput" class="stat-value">-</span>
+                                </li>
+                                <li class="list-group-item">
+                                    <strong data-term-group="class" data-bs-toggle="tooltip" data-bs-placement="top" title="The most frequently occurring score(s) in the dataset. There can be multiple modes or no mode if all scores are unique. (Requires n>=1)"><i class="bi bi-bar-chart-fill"></i>Mode(s):</strong>
+                                    <span id="modeOutput" class="stat-value">-</span>
+                                </li>
+                                <li class="list-group-item">
+                                    <strong data-term-group="class" data-bs-toggle="tooltip" data-bs-placement="top" title="A measure of the amount of variation or dispersion of scores around the mean. Higher value = greater spread. (Uses Sample Std Dev, requires n>=2)"><i class="bi bi-arrows-angle-expand"></i>Std. Deviation:</strong>
+                                    <span id="stdDevOutput" class="stat-value">-</span>
+                                </li>
+                                <li class="list-group-item">
+                                    <strong data-term-group="class" data-bs-toggle="tooltip" data-bs-placement="top" title="The square of the Standard Deviation. Measures the average squared difference from the mean. (Uses Sample Variance, requires n>=2)"><i class="bi bi-superscript"></i>Variance:</strong>
+                                    <span id="varianceOutput" class="stat-value">-</span>
+                                </li>
+                                 <li class="list-group-item">
+                                    <strong data-term-group="class" data-bs-toggle="tooltip" data-bs-placement="top" title="The lowest score recorded in the class data."><i class="bi bi-chevron-double-down"></i>Lowest Score:</strong>
+                                    <span id="minOutput" class="stat-value">-</span>
+                                </li>
+                                <li class="list-group-item">
+                                    <strong data-term-group="class" data-bs-toggle="tooltip" data-bs-placement="top" title="The highest score recorded in the class data."><i class="bi bi-chevron-double-up"></i>Highest Score:</strong>
+                                    <span id="maxOutput" class="stat-value">-</span>
+                                </li>
+                                <li class="list-group-item">
+                                    <strong data-term-group="class" data-bs-toggle="tooltip" data-bs-placement="top" title="The difference between the highest and lowest scores (Max - Min), indicating the total spread of all scores."><i class="bi bi-arrows-expand-vertical"></i>Range:</strong>
+                                    <span id="rangeOutput" class="stat-value">-</span>
+                                </li>
+                                <li class="list-group-item">
+                                    <strong data-term-group="class" data-bs-toggle="tooltip" data-bs-placement="top" title="The score below which 25% of the data falls (25th Percentile). Marks the bottom boundary of the middle 50% of scores. (Requires n>=1)"><i class="bi bi-box-arrow-down"></i>Quartile 1 (Q1):</strong>
+                                    <span id="q1Output" class="stat-value">-</span>
+                                </li>
+                                <li class="list-group-item">
+                                    <strong data-term-group="class" data-bs-toggle="tooltip" data-bs-placement="top" title="The score below which 75% of the data falls (75th Percentile). Marks the top boundary of the middle 50% of scores. (Requires n>=1)"><i class="bi bi-box-arrow-up"></i>Quartile 3 (Q3):</strong>
+                                    <span id="q3Output" class="stat-value">-</span>
+                                </li>
+                                <li class="list-group-item">
+                                    <strong data-term-group="class" data-bs-toggle="tooltip" data-bs-placement="top" title="Interquartile Range (Q3 - Q1). Represents the spread of the middle 50% of scores, less affected by outliers than the Range or Standard Deviation. (Requires n>=1)"><i class="bi bi-arrows-vertical"></i>IQR (Q3-Q1):</strong>
+                                    <span id="iqrOutput" class="stat-value">-</span>
+                                </li>
+                                <li class="list-group-item">
+                                    <strong data-term-group="class" data-bs-toggle="tooltip" data-bs-placement="top" title="Measure of asymmetry. ≈0: symmetric; >0: right-skewed (tail right, mean > median); <0: left-skewed (tail left, mean < median). |Skewness| > 1 suggests high skew. (Requires n>=3)"><i class="bi bi-symmetry-horizontal"></i>Skewness:</strong>
+                                    <span id="skewnessOutput" class="stat-value">-</span>
+                                </li>
+                                <li class="list-group-item">
+                                    <strong data-term-group="class" data-bs-toggle="tooltip" data-bs-placement="top" title="Measure of 'tailedness'/'peakiness' relative to a normal distribution. >0: peaked (leptokurtic); <0: flat (platykurtic); ≈0: normal peak (mesokurtic). High values indicate more extreme outliers. (Shows Excess Kurtosis, requires n>=4)"><i class="bi bi-cone-striped"></i>Kurtosis (Excess):</strong>
+                                    <span id="kurtosisOutput" class="stat-value">-</span>
+                                </li>
+                                <li class="list-group-item" id="targetStatsRow" style="display: none;">
+                                    <strong data-term-group="class" data-bs-toggle="tooltip" data-bs-placement="top" title="Statistics related to the target/passing score you entered."><i class="bi bi-flag-fill"></i>Target Score Stats (<span id="targetScoreValueClass"></span>):</strong>
+                                    <span id="targetStatsOutput" class="stat-value">-</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <h2 class="h4 mt-5 mb-4 text-center fw-medium">Score Distribution Visualization</h2>
+            <div class="row g-4 justify-content-center">
+                <div class="col-12 col-lg-10 col-xl-9">
+                     <div class="card visualization-section shadow-sm">
+                          <h5 class="card-header d-flex align-items-center"><i class="bi bi-bar-chart-steps me-2"></i>Histogram & Frequency Polygon</h5>
+                         <div class="card-body p-4">
+                              <div id="distributionChartMessage" class="chart-message alert alert-info" role="status" aria-live="polite">
+                                <i class="bi bi-graph-up"></i>
+                                <span>Please enter data and click Analyze to visualize the score distribution.</span>
+                              </div>
+                             <div class="chart-container" style="display: none;">
+                                <canvas id="distributionChart" role="img" aria-label="Score Distribution Histogram and Frequency Polygon"></canvas>
+                             </div>
+                             <p id="chartCaption" class="form-text text-center mt-3" style="display: none;">Histogram bars show score counts within specific ranges (bins). The <span class="fw-bold" style="color: var(--chart-line-color)">line</span> outlines the distribution shape. Your score falls into the <span class="fw-bold" style="color: var(--chart-highlight-border-color)">highlighted bin</span>.</p>
+                             <div class="text-center mt-3">
+                                 <button id="downloadChartBtn" class="btn btn-sm btn-outline-secondary" style="display: none;">
+                                     <i class="bi bi-download me-1"></i> Download Chart (PNG)
+                                 </button>
+                             </div>
+                         </div>
+                     </div>
+                </div>
+            </div>
+
+            <h2 class="h4 mt-5 mb-4 text-center fw-medium">Frequency Distribution</h2>
+             <div class="row g-4 justify-content-center">
+                <div class="col-12 col-lg-10 col-xl-9">
+                    <div class="card frequency-table-section shadow-sm">
+                        <h5 class="card-header d-flex align-items-center"><i class="bi bi-table me-2"></i>Frequency Table</h5>
+                        <div class="card-body p-4">
+                            <div id="frequencyTableMessage" class="chart-message alert alert-info" role="status" aria-live="polite">
+                                <i class="bi bi-table"></i>
+                                <span>Frequency table will be generated after analysis based on the histogram bins.</span>
+                            </div>
+                            <div id="frequencyTableContainer" class="frequency-table-container" style="display: none;">
+                                <table class="table table-striped table-hover table-sm">
+                                    <thead>
+                                        <tr>
+                                            <th>Score Range (Bin)</th>
+                                            <th>Frequency (Count)</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="frequencyTableBody">
+
+                                    </tbody>
+                                </table>
+                            </div>
+                             <p id="frequencyTableCaption" class="form-text text-center mt-3" style="display: none;">Table shows the number of students whose scores fall within each range used in the histogram above.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <h2 class="h4 mt-5 mb-4 text-center fw-medium">Explore Percentiles</h2>
+             <div class="row g-4 justify-content-center">
+                <div class="col-12 col-lg-10 col-xl-9">
+                    <div class="card percentile-slider-section shadow-sm">
+                        <h5 class="card-header d-flex align-items-center"><i class="bi bi-sliders me-2"></i>Score to Percentile Lookup</h5>
+                        <div class="card-body p-4">
+                             <div id="percentileSliderMessage" class="chart-message alert alert-info" role="status" aria-live="polite">
+                                <i class="bi bi-sliders"></i>
+                                <span>Slider will be enabled after analysis to explore score-percentile relationships.</span>
+                            </div>
+                            <div id="percentileSliderGroup" style="display: none;">
+                                <label for="percentileSlider" class="form-label">Select a Score:</label>
+                                <input type="range" class="form-range" id="percentileSlider" min="0" max="100" step="0.5" disabled>
+                                <div class="d-flex justify-content-between align-items-center mt-2">
+                                    <span class="text-muted small">Score: <strong id="sliderScoreValue" class="percentile-slider-output">N/A</strong></span>
+                                    <span class="text-muted small">Approx. Percentile: <strong id="sliderPercentileValue" class="percentile-slider-output">N/A</strong></span>
+                                </div>
+                                <p class="form-text text-center mt-3">Move the slider to see the approximate percentile rank for any given score based on the class data.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+    <footer class="text-center text-secondary small mt-auto">
+        <div class="container-lg">
+            <p class="mb-1">🔒 All calculations performed locally in your browser. No data is sent or stored externally.</p>
+            <p class="mb-1">Built with <a href="https://getbootstrap.com/" target="_blank" rel="noopener">Bootstrap</a>, <a href="https://www.chartjs.org/" target="_blank" rel="noopener">Chart.js</a>, and <a href="https://simplestatistics.org/" target="_blank" rel="noopener">simple-statistics</a>.</p>
+            <p class="mb-0">© <span id="currentYear"></span> Performance Analyzer</p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+
+        const THEME_STORAGE_KEY = 'themePreference';
+        const LIGHT_THEME = 'light';
+        const DARK_THEME = 'dark';
+        const FLOAT_PRECISION_EPSILON = 1e-9;
+        const MIN_SCORES_FOR_CHART = 2;
+        const MIN_SCORES_FOR_STDDEV = 2;
+        const MIN_SCORES_FOR_VARIANCE = 2;
+        const MIN_SCORES_FOR_MODE = 1;
+        const MIN_SCORES_FOR_SKEWNESS = 3;
+        const MIN_SCORES_FOR_KURTOSIS = 4;
+        const MIN_SCORES_FOR_QUARTILES = 1;
+
+        const Cache = {
+            htmlElement: document.documentElement,
+            marksForm: document.getElementById('marksForm'),
+            resultsContainer: document.getElementById('resultsContainer'),
+            currentYearSpan: document.getElementById('currentYear'),
+
+            yourScoreInput: document.getElementById('yourScore'),
+            targetScoreInput: document.getElementById('targetScore'),
+            classScoresInput: document.getElementById('classScores'),
+            scoreCountDisplay: document.getElementById('scoreCountDisplay'),
+
+            submitButton: document.querySelector('#marksForm button[type="submit"]'),
+            resetButton: document.querySelector('#marksForm button[type="reset"]'),
+            exampleDataBtn: document.getElementById('exampleDataBtn'),
+            copyResultsBtn: document.getElementById('copyResultsBtn'),
+            copyFeedback: document.getElementById('copyFeedback'),
+            loadingSpinner: document.querySelector('#marksForm button[type="submit"] .loading-spinner'),
+            submitButtonTextSpan: document.querySelector('#marksForm button[type="submit"] .analyze-text'),
+            submitButtonIcon: document.querySelector('#marksForm button[type="submit"] .analyze-icon'),
+            themeToggleBtn: document.getElementById('themeToggleBtn'),
+            themeIcon: document.querySelector('#themeToggleBtn i'),
+
+            errorMessage: document.getElementById('errorMessage'),
+            errorMessageText: document.getElementById('errorMessageText'),
+
+            distributionChartCanvas: document.getElementById('distributionChart'),
+            distributionChartContainer: document.querySelector('.chart-container'),
+            distributionChartMessage: document.getElementById('distributionChartMessage'),
+            chartCaption: document.getElementById('chartCaption'),
+            downloadChartBtn: document.getElementById('downloadChartBtn'),
+
+            frequencyTableContainer: document.getElementById('frequencyTableContainer'),
+            frequencyTableBody: document.getElementById('frequencyTableBody'),
+            frequencyTableMessage: document.getElementById('frequencyTableMessage'),
+            frequencyTableCaption: document.getElementById('frequencyTableCaption'),
+
+            percentileSliderGroup: document.getElementById('percentileSliderGroup'),
+            percentileSlider: document.getElementById('percentileSlider'),
+            sliderScoreValue: document.getElementById('sliderScoreValue'),
+            sliderPercentileValue: document.getElementById('sliderPercentileValue'),
+            percentileSliderMessage: document.getElementById('percentileSliderMessage'),
+
+            outputElements: {
+                yourScore: document.getElementById('yourScoreOutput'), rank: document.getElementById('rankOutput'),
+                percentile: document.getElementById('percentileOutput'), vsAverage: document.getElementById('vsAverageOutput'),
+                vsMedian: document.getElementById('vsMedianOutput'), zScore: document.getElementById('zScoreOutput'),
+                vsTarget: document.getElementById('vsTargetOutput'),
+                targetScoreValue: document.getElementById('targetScoreValue'),
+                vsTargetRow: document.getElementById('vsTargetRow'),
+
+                count: document.getElementById('countOutput'), average: document.getElementById('averageOutput'),
+                median: document.getElementById('medianOutput'), mode: document.getElementById('modeOutput'),
+                min: document.getElementById('minOutput'), max: document.getElementById('maxOutput'),
+                range: document.getElementById('rangeOutput'), stdDev: document.getElementById('stdDevOutput'),
+                variance: document.getElementById('varianceOutput'),
+                q1: document.getElementById('q1Output'), q3: document.getElementById('q3Output'),
+                iqr: document.getElementById('iqrOutput'), skewness: document.getElementById('skewnessOutput'),
+                kurtosis: document.getElementById('kurtosisOutput'),
+                targetStats: document.getElementById('targetStatsOutput'),
+                targetScoreValueClass: document.getElementById('targetScoreValueClass'),
+                targetStatsRow: document.getElementById('targetStatsRow'),
+            }
+        };
+
+        let distributionChart = null;
+        let librariesInitialized = false;
+        let currentAnalysisStats = {};
+        let currentRawStatsText = '';
+        let bootstrapTooltipList = [];
+        let currentHistogramBins = [];
+
+        function initializeApp() {
+            if (!Cache.marksForm || !Cache.yourScoreInput || !Cache.classScoresInput || !Cache.submitButton) {
+                console.error("FATAL: Critical form elements missing. Application cannot initialize.");
+                showGeneralError("Initialization Error: Core form components not found. Please reload or check the HTML structure.");
+                if (Cache.submitButton) Cache.submitButton.disabled = true;
+                return;
+            }
+
+            if (Cache.currentYearSpan) Cache.currentYearSpan.textContent = new Date().getFullYear();
+
+            if (!checkAndInitializeLibraries()) {
+                Cache.submitButton.disabled = true;
+            }
+
+            setupTheme();
+            setupEventListeners();
+            showChartMessage("Please enter data and click Analyze to visualize the score distribution.", 'info');
+            showMessage(Cache.frequencyTableMessage, "Frequency table will be generated after analysis based on the histogram bins.", 'info', 'bi-table');
+            showMessage(Cache.percentileSliderMessage, "Slider will be enabled after analysis to explore score-percentile relationships.", 'info', 'bi-sliders');
+            initializeTooltips();
+        }
+
+        function checkAndInitializeLibraries() {
+            if (librariesInitialized) return true;
+
+            const libsReady = typeof Chart !== 'undefined' &&
+                              typeof ss !== 'undefined' &&
+                              typeof bootstrap !== 'undefined' &&
+                              bootstrap.Tooltip;
+
+            if (libsReady) {
+                librariesInitialized = true;
+                if (Cache.errorMessage?.style.display !== 'none' && Cache.errorMessageText?.textContent.includes("Error initializing libraries")) {
+                     clearGeneralError();
+                }
+                console.info("Core libraries (Bootstrap Tooltip, Chart.js, simple-statistics) initialized successfully.");
+
+                Chart.defaults.font.family = "inherit";
+                try {
+                    updateChartDefaults();
+                } catch (e) {
+                    console.error("Error setting initial Chart.js defaults based on CSS variables:", e);
+                }
+                return true;
+            } else {
+                const missing = [];
+                if (typeof bootstrap === 'undefined' || !bootstrap.Tooltip) missing.push('Bootstrap JS (with Tooltip)');
+                if (typeof Chart === 'undefined') missing.push('Chart.js');
+                if (typeof ss === 'undefined') missing.push('Simple Statistics');
+                const errorMsg = `Error initializing libraries: ${missing.join(', ')} may not have loaded correctly. Core functionality (analysis, charts) may fail. Please check your network connection, browser console, or try reloading the page.`;
+                console.error(errorMsg);
+                showGeneralError(errorMsg);
+                return false;
+            }
+        }
+
+        function updateChartDefaults() {
+            if (typeof Chart === 'undefined') return;
+            try {
+                const style = getComputedStyle(document.documentElement);
+                Chart.defaults.color = style.getPropertyValue('--chart-axis-color').trim();
+                Chart.defaults.plugins.tooltip.backgroundColor = style.getPropertyValue('--tooltip-bg').trim();
+                Chart.defaults.plugins.tooltip.titleColor = style.getPropertyValue('--tooltip-color').trim();
+                Chart.defaults.plugins.tooltip.bodyColor = style.getPropertyValue('--tooltip-color').trim();
+                Chart.defaults.plugins.tooltip.borderColor = style.getPropertyValue('--bs-border-color-translucent').trim();
+                Chart.defaults.plugins.tooltip.borderWidth = 1;
+                Chart.defaults.plugins.tooltip.padding = 10;
+                const borderRadiusSm = style.getPropertyValue('--bs-border-radius-sm').trim();
+                Chart.defaults.plugins.tooltip.cornerRadius = parseFloat(borderRadiusSm) * 16 || 4;
+            } catch (e) {
+                console.error("Error updating Chart.js defaults from CSS:", e);
+            }
+        }
+
+
+        function initializeTooltips() {
+            if (typeof bootstrap === 'undefined' || !bootstrap.Tooltip) {
+                console.warn("Bootstrap Tooltip component not available for initialization.");
+                return;
+            }
+            disposeTooltips();
+            const tooltipTriggerList = Array.from(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+            bootstrapTooltipList = tooltipTriggerList.map(tooltipTriggerEl =>
+                 new bootstrap.Tooltip(tooltipTriggerEl, {
+                    trigger: 'hover focus',
+                    boundary: 'window',
+                })
+            );
+        }
+
+        function disposeTooltips() {
+            bootstrapTooltipList.forEach(tooltip => tooltip?.dispose());
+            bootstrapTooltipList = [];
+        }
+
+        function setupTheme() {
+            const applyTheme = (theme) => {
+                Cache.htmlElement.setAttribute('data-bs-theme', theme);
+                const isDark = theme === DARK_THEME;
+                if (Cache.themeIcon) Cache.themeIcon.className = isDark ? 'bi bi-moon-stars-fill fs-5' : 'bi bi-sun-fill fs-5';
+                if (Cache.themeToggleBtn) Cache.themeToggleBtn.setAttribute('aria-label', isDark ? 'Switch to light theme' : 'Switch to dark theme');
+
+                 if (librariesInitialized) {
+                    updateChartDefaults();
+                    try {
+                        if (distributionChart && currentAnalysisStats.count >= MIN_SCORES_FOR_CHART) {
+                            const shouldRenderChart = currentAnalysisStats.count >= MIN_SCORES_FOR_CHART && Math.abs(currentAnalysisStats.range) > FLOAT_PRECISION_EPSILON;
+                            if (shouldRenderChart) {
+                                renderDistributionChart(currentAnalysisStats.sortedScores, currentAnalysisStats.yourScore, currentAnalysisStats.min, currentAnalysisStats.max, true);
+                            }
+                        }
+                    } catch (e) {
+                         console.error("Error updating chart theme:", e);
+                    }
+                 }
+            };
+
+            const toggleTheme = () => {
+                const currentTheme = Cache.htmlElement.getAttribute('data-bs-theme') || LIGHT_THEME;
+                const newTheme = currentTheme === DARK_THEME ? LIGHT_THEME : DARK_THEME;
+                localStorage.setItem(THEME_STORAGE_KEY, newTheme);
+                applyTheme(newTheme);
+            };
+
+            const savedTheme = localStorage.getItem(THEME_STORAGE_KEY);
+            const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            applyTheme(savedTheme || (prefersDark ? DARK_THEME : LIGHT_THEME));
+
+            if (Cache.themeToggleBtn) Cache.themeToggleBtn.addEventListener('click', toggleTheme);
+        }
+
+        function setupEventListeners() {
+            Cache.marksForm.addEventListener('submit', handleFormSubmit);
+            Cache.marksForm.addEventListener('reset', handleFormReset);
+
+            if (Cache.classScoresInput && Cache.scoreCountDisplay) {
+                Cache.classScoresInput.addEventListener('input', updateScoreCount);
+            } else {
+                console.warn("Could not attach listener for live score count update.");
+            }
+
+            if (Cache.exampleDataBtn) {
+                Cache.exampleDataBtn.addEventListener('click', handleExampleDataClick);
+            }
+
+            if (Cache.copyResultsBtn) {
+                Cache.copyResultsBtn.addEventListener('click', handleCopyResults);
+            } else {
+                 console.warn("Copy results button not found.");
+            }
+
+            if (Cache.downloadChartBtn) {
+                Cache.downloadChartBtn.addEventListener('click', handleDownloadChartClick);
+            }
+
+            if (Cache.percentileSlider) {
+                Cache.percentileSlider.addEventListener('input', handlePercentileSliderInput);
+            }
+        }
+
+        function setLoadingState(isLoading) {
+             if (!Cache.submitButton || !Cache.loadingSpinner || !Cache.submitButtonTextSpan || !Cache.submitButtonIcon) {
+                 console.warn("Cannot set loading state: Submit button elements missing.");
+                 return;
+             }
+             Cache.submitButton.disabled = isLoading;
+             Cache.loadingSpinner.style.display = isLoading ? 'inline-block' : 'none';
+             Cache.submitButtonTextSpan.textContent = isLoading ? 'Analyzing...' : 'Analyze Performance';
+             Cache.submitButtonIcon.style.display = isLoading ? 'none' : 'inline-block';
+             if (Cache.exampleDataBtn) Cache.exampleDataBtn.disabled = isLoading;
+             if (Cache.resetButton) Cache.resetButton.disabled = isLoading;
+        }
+
+        function showGeneralError(message) {
+             if (!Cache.errorMessage || !Cache.errorMessageText) return;
+             Cache.errorMessageText.textContent = message;
+             Cache.errorMessage.style.display = 'flex';
+             Cache.errorMessage.setAttribute('aria-live', 'assertive');
+             if (Cache.resultsContainer) Cache.resultsContainer.style.display = 'none';
+             if (Cache.copyResultsBtn) Cache.copyResultsBtn.style.display = 'none';
+        }
+
+        function clearGeneralError() {
+             if (!Cache.errorMessage || !Cache.errorMessageText) return;
+             Cache.errorMessage.style.display = 'none';
+             Cache.errorMessageText.textContent = '';
+             Cache.errorMessage.setAttribute('aria-live', 'off');
+        }
+
+        function updateScoreCount() {
+             if (!Cache.classScoresInput || !Cache.scoreCountDisplay) return;
+             const scores = parseScores(Cache.classScoresInput.value);
+             Cache.scoreCountDisplay.textContent = `Valid scores detected: ${scores.length}`;
+        }
+
+        function validateInput(inputElement) {
+             if (!inputElement) return false;
+
+             const feedbackDivId = inputElement.getAttribute('aria-describedby');
+             const feedbackDiv = feedbackDivId ? document.getElementById(feedbackDivId.split(' ')[0]) : null;
+             inputElement.removeAttribute('aria-invalid');
+             inputElement.classList.remove('is-invalid');
+             if (feedbackDiv) feedbackDiv.textContent = "";
+
+             const value = inputElement.value.trim();
+             let isValid = true;
+             let errorMessage = '';
+             const isEmpty = value === '';
+
+             if (inputElement.required && isEmpty) {
+                 isValid = false;
+                 errorMessage = "This field is required.";
+             } else if (!isEmpty) {
+                if (inputElement.type === 'number') {
+                    const numValue = parseFloat(value);
+                    if (isNaN(numValue) || !isFinite(numValue)) {
+                        isValid = false;
+                        errorMessage = "Please enter a valid numeric score.";
+                    } else {
+                        const minVal = inputElement.hasAttribute('min') ? parseFloat(inputElement.min) : -Infinity;
+                        const maxVal = inputElement.hasAttribute('max') ? parseFloat(inputElement.max) : Infinity;
+                        if (numValue < minVal - FLOAT_PRECISION_EPSILON) {
+                            isValid = false;
+                            errorMessage = `Score must be ${minVal} or higher.`;
+                        } else if (numValue > maxVal + FLOAT_PRECISION_EPSILON) {
+                            isValid = false;
+                            errorMessage = `Score must be ${maxVal} or lower.`;
+                        }
+                    }
+                } else if (inputElement.tagName.toLowerCase() === 'textarea' && inputElement.id === 'classScores') {
+                    const scores = parseScores(value);
+                    if (scores.length === 0) {
+                        isValid = false;
+                        errorMessage = "Please enter at least one valid numeric score for the class.";
+                    }
+                }
+             }
+
+            if (!isValid) {
+                inputElement.setAttribute('aria-invalid', 'true');
+                inputElement.classList.add('is-invalid');
+                if (feedbackDiv) feedbackDiv.textContent = errorMessage;
+            }
+
+             return isValid;
+        }
+
+        function parseScores(rawScoresText) {
+             if (!rawScoresText || typeof rawScoresText !== 'string') return [];
+
+             return rawScoresText
+                    .split(/[\s,;|\t\n]+/)
+                    .map(s => s.trim())
+                    .filter(s => s !== "")
+                    .map(s => parseFloat(s))
+                    .filter(n => !isNaN(n) && isFinite(n));
+        }
+
+        function calculateStats(yourScoreValue, classScores, targetScoreValue) {
+             if (!Array.isArray(classScores)) {
+                throw new Error("Internal error: classScores is not an array.");
+             }
+             if (classScores.length === 0) {
+                 throw new Error("No valid class scores provided for analysis.");
+             }
+             if (!classScores.every(n => typeof n === 'number' && isFinite(n))) {
+                console.error("Internal error: Invalid data detected in classScores array during calculation:", classScores);
+                throw new Error("Internal error processing class scores. Please check input format.");
+             }
+
+             const sortedClassScores = [...classScores].sort((a, b) => a - b);
+             const classSize = classScores.length;
+
+             const minScore = ss.min(sortedClassScores);
+             const maxScore = ss.max(sortedClassScores);
+             const meanScore = ss.mean(classScores);
+             const medianScore = ss.medianSorted(sortedClassScores);
+             const modeScore = classSize >= MIN_SCORES_FOR_MODE ? ss.mode(classScores) : [];
+             const varianceScore = classSize >= MIN_SCORES_FOR_VARIANCE ? ss.sampleVariance(classScores) : NaN;
+
+             const q1Score = classSize >= MIN_SCORES_FOR_QUARTILES ? ss.quantileSorted(sortedClassScores, 0.25) : NaN;
+             const q3Score = classSize >= MIN_SCORES_FOR_QUARTILES ? ss.quantileSorted(sortedClassScores, 0.75) : NaN;
+             const iqrScore = (!isNaN(q1Score) && !isNaN(q3Score)) ? q3Score - q1Score : NaN;
+
+             const stdDevScore = classSize >= MIN_SCORES_FOR_STDDEV ? ss.sampleStandardDeviation(classScores) : NaN;
+
+             const skew = classSize >= MIN_SCORES_FOR_SKEWNESS ? ss.sampleSkewness(classScores) : NaN;
+
+             const kurt = classSize >= MIN_SCORES_FOR_KURTOSIS ? ss.sampleKurtosis(classScores) : NaN;
+
+             const rangeScore = (!isNaN(minScore) && !isNaN(maxScore)) ? maxScore - minScore : NaN;
+
+             const zScore = (classSize >= MIN_SCORES_FOR_STDDEV && !isNaN(stdDevScore) && Math.abs(stdDevScore) > FLOAT_PRECISION_EPSILON)
+                           ? ss.zScore(yourScoreValue, meanScore, stdDevScore)
+                           : NaN;
+
+             const rank = calculateRank(yourScoreValue, classScores);
+             const percentile = calculatePercentile(yourScoreValue, sortedClassScores);
+
+             let targetStats = { countAbove: NaN, percentAbove: NaN };
+             if (typeof targetScoreValue === 'number' && !isNaN(targetScoreValue)) {
+                 targetStats.countAbove = classScores.reduce((count, score) => count + (score >= targetScoreValue - FLOAT_PRECISION_EPSILON ? 1 : 0), 0);
+                 targetStats.percentAbove = (targetStats.countAbove / classSize) * 100;
+             }
+
+             return {
+                count: classSize, min: minScore, max: maxScore, average: meanScore, median: medianScore,
+                mode: modeScore, variance: varianceScore,
+                stdDev: stdDevScore, range: rangeScore, q1: q1Score, q3: q3Score, iqr: iqrScore,
+                skewness: skew, kurtosis: kurt, yourScore: yourScoreValue,
+                rank: rank, percentile: percentile, zScore: zScore,
+                targetScore: targetScoreValue, targetStats: targetStats,
+                sortedScores: sortedClassScores
+            };
+        }
+
+        function calculateRank(yourScore, classScores) {
+             if (!Array.isArray(classScores) || classScores.length === 0) return 'N/A';
+             const scoresStrictlyHigher = classScores.reduce((count, score) => {
+                 return count + (score > yourScore + FLOAT_PRECISION_EPSILON ? 1 : 0);
+             }, 0);
+             return scoresStrictlyHigher + 1;
+        }
+
+        function calculatePercentile(yourScore, sortedClassScores) {
+             if (!Array.isArray(sortedClassScores) || sortedClassScores.length === 0) return 0;
+             const n = sortedClassScores.length;
+             let scoresStrictlyLower = 0;
+             scoresStrictlyLower = sortedClassScores.reduce((count, score) => {
+                 return count + (score < yourScore - FLOAT_PRECISION_EPSILON ? 1 : 0);
+             }, 0);
+             return (scoresStrictlyLower / n) * 100;
+        }
+
+        function formatStat(value, decimals = 2, defaultVal = '-') {
+             if (typeof value !== 'number' || isNaN(value) || !isFinite(value)) {
+                 return defaultVal;
+             }
+
+             if (Math.abs(value) > FLOAT_PRECISION_EPSILON && (Math.abs(value) < 1e-4 || Math.abs(value) >= 1e9)) {
+                const expDecimals = Math.max(0, decimals - 1);
+                return value.toExponential(expDecimals);
+             }
+
+             try {
+                 return new Intl.NumberFormat(undefined, {
+                     minimumFractionDigits: decimals,
+                     maximumFractionDigits: decimals
+                 }).format(value);
+             } catch (e) {
+                 console.error("Intl.NumberFormat failed:", e, "Value:", value);
+                 return value.toFixed(decimals);
+             }
+        }
+
+        function displayResults(stats) {
+             if (!Cache.resultsContainer) {
+                 console.error("Cannot display results: Results container not found.");
+                 return;
+             }
+             currentRawStatsText = '';
+             currentHistogramBins = [];
+
+             const resultsCards = Cache.resultsContainer.querySelectorAll('.card');
+             resultsCards.forEach(card => {
+                 card.style.animation = 'none';
+                 card.offsetHeight;
+                 card.style.animation = '';
+             });
+
+
+             const {
+                yourScore, rank, percentile, count, average, median, mode, variance, min, max, range,
+                stdDev, q1, q3, iqr, zScore, skewness, kurtosis, targetScore, targetStats
+             } = stats;
+             const classSize = count;
+
+             const updateElement = (element, value, rawLabel = '', options = {}) => {
+                 const { decimals = 2, defaultVal = '-', suffix = '', prefix = '' } = options;
+                 let formattedValue = defaultVal;
+
+                 if (Array.isArray(value)) {
+                     if (value.length === 0) formattedValue = `N/A (n<${MIN_SCORES_FOR_MODE})`;
+                     else if (value.length === classSize) formattedValue = 'None (all unique)';
+                     else formattedValue = value.map(v => formatStat(v, decimals, defaultVal)).join(', ');
+                 } else {
+                     formattedValue = formatStat(value, decimals, defaultVal);
+                 }
+
+                 if (element) {
+                     element.textContent = `${prefix}${formattedValue}${suffix}`;
+                     element.classList.remove('text-positive', 'text-negative', 'text-secondary');
+                 } else {
+                     console.warn(`Output element for "${rawLabel}" not found.`);
+                 }
+                 if(rawLabel) {
+                     currentRawStatsText += `${rawLabel}: ${prefix}${formattedValue}${suffix}\n`;
+                 }
+             };
+
+             const updateComparisonElement = (element, diffValue, comparisonType, rawLabel = '', isTarget = false) => {
+                 if (!element) {
+                     console.warn(`Output element for "${rawLabel}" not found.`);
+                     return;
+                 }
+
+                 let textContent = '-';
+                 let cssClass = 'text-secondary';
+                 let iconHtml = '<i class="bi bi-dash-lg"></i>';
+
+                 if (typeof diffValue === 'number' && !isNaN(diffValue) && isFinite(diffValue)) {
+                    const isPositive = diffValue > FLOAT_PRECISION_EPSILON;
+                    const isNegative = diffValue < -FLOAT_PRECISION_EPSILON;
+                    const isZero = !isPositive && !isNegative;
+
+                    const formattedDiff = formatStat(Math.abs(diffValue), 2);
+                    let comparisonWord = '';
+                    if (isTarget) {
+                        comparisonWord = isPositive ? 'above' : (isZero ? 'met' : 'below');
+                    } else {
+                        comparisonWord = isPositive ? 'above' : (isZero ? 'matches' : 'below');
+                    }
+                    const sign = isPositive ? '+' : (isNegative ? '-' : '');
+
+                    textContent = `${sign}${formattedDiff} points ${comparisonWord} ${comparisonType}`;
+
+                    if (isPositive || (isTarget && isZero)) {
+                        cssClass = 'text-positive';
+                        iconHtml = isZero ? '<i class="bi bi-check-lg"></i>' : '<i class="bi bi-arrow-up-short"></i>';
+                    } else if (isNegative) {
+                        cssClass = 'text-negative';
+                        iconHtml = '<i class="bi bi-arrow-down-short"></i>';
+                    }
+                 }
+
+                 element.innerHTML = `${iconHtml} ${textContent}`;
+                 element.className = 'stat-value';
+                 element.classList.add(cssClass);
+
+                 if(rawLabel) {
+                     currentRawStatsText += `${rawLabel}: ${textContent}\n`;
+                 }
+             };
+
+             currentRawStatsText += "--- Your Performance ---\n";
+             updateElement(Cache.outputElements.yourScore, yourScore, "Your Score", { decimals: 2 });
+             updateElement(Cache.outputElements.rank, rank, "Rank", { decimals: 0, defaultVal: 'N/A', suffix: classSize > 0 ? ` of ${classSize}` : '' });
+
+             let percentileSuffix = '%ile';
+             if (typeof percentile === 'number' && !isNaN(percentile)) {
+                 const topPercentile = formatStat(100 - percentile, 1);
+                 percentileSuffix += ` (Top ${topPercentile}%)`;
+             }
+             updateElement(Cache.outputElements.percentile, percentile, "Percentile", { decimals: 1, suffix: percentileSuffix });
+
+             let zScoreDefault = '-';
+             if (classSize < MIN_SCORES_FOR_STDDEV) zScoreDefault = `N/A (n<${MIN_SCORES_FOR_STDDEV})`;
+             else if (isNaN(stdDev) || Math.abs(stdDev) <= FLOAT_PRECISION_EPSILON) zScoreDefault = 'N/A (StdDev≈0)';
+             else if (isNaN(zScore)) zScoreDefault = '-';
+             updateElement(Cache.outputElements.zScore, zScore, "Z-Score", { decimals: 2, defaultVal: zScoreDefault });
+             if (Cache.outputElements.zScore && typeof zScore === 'number' && !isNaN(zScore)) {
+                 if (zScore > FLOAT_PRECISION_EPSILON) Cache.outputElements.zScore.classList.add('text-positive');
+                 else if (zScore < -FLOAT_PRECISION_EPSILON) Cache.outputElements.zScore.classList.add('text-negative');
+                 else Cache.outputElements.zScore.classList.add('text-secondary');
+             }
+
+             const diffFromAvg = (!isNaN(average) && !isNaN(yourScore)) ? yourScore - average : NaN;
+             updateComparisonElement(Cache.outputElements.vsAverage, diffFromAvg, 'average', "vs. Class Average");
+             const diffFromMedian = (!isNaN(median) && !isNaN(yourScore)) ? yourScore - median : NaN;
+             updateComparisonElement(Cache.outputElements.vsMedian, diffFromMedian, 'median', "vs. Class Median");
+
+             if (typeof targetScore === 'number' && !isNaN(targetScore)) {
+                 const diffFromTarget = yourScore - targetScore;
+                 const targetScoreFormatted = formatStat(targetScore, 2);
+                 if(Cache.outputElements.targetScoreValue) Cache.outputElements.targetScoreValue.textContent = targetScoreFormatted;
+                 updateComparisonElement(Cache.outputElements.vsTarget, diffFromTarget, `target (${targetScoreFormatted})`, "vs. Target Score", true);
+                 if(Cache.outputElements.vsTargetRow) Cache.outputElements.vsTargetRow.style.display = 'flex';
+             } else {
+                 if(Cache.outputElements.vsTargetRow) Cache.outputElements.vsTargetRow.style.display = 'none';
+             }
+
+             currentRawStatsText += "\n--- Class Statistics ---\n";
+             updateElement(Cache.outputElements.count, classSize, "Class Size (n)", { decimals: 0 });
+             updateElement(Cache.outputElements.average, average, "Mean (Average)", { decimals: 2 });
+             updateElement(Cache.outputElements.median, median, "Median (Q2)", { decimals: 2 });
+             updateElement(Cache.outputElements.mode, mode, "Mode(s)", { decimals: 2, defaultVal: `N/A (n<${MIN_SCORES_FOR_MODE})` });
+             updateElement(Cache.outputElements.stdDev, stdDev, "Std. Deviation", { decimals: 2, defaultVal: `N/A (n<${MIN_SCORES_FOR_STDDEV})` });
+             updateElement(Cache.outputElements.variance, variance, "Variance", { decimals: 2, defaultVal: `N/A (n<${MIN_SCORES_FOR_VARIANCE})` });
+             updateElement(Cache.outputElements.min, min, "Lowest Score", { decimals: 2 });
+             updateElement(Cache.outputElements.max, max, "Highest Score", { decimals: 2 });
+             updateElement(Cache.outputElements.range, range, "Range", { decimals: 2 });
+             updateElement(Cache.outputElements.q1, q1, "Quartile 1 (Q1)", { decimals: 2, defaultVal: `N/A (n<${MIN_SCORES_FOR_QUARTILES})` });
+             updateElement(Cache.outputElements.q3, q3, "Quartile 3 (Q3)", { decimals: 2, defaultVal: `N/A (n<${MIN_SCORES_FOR_QUARTILES})` });
+             updateElement(Cache.outputElements.iqr, iqr, "IQR (Q3-Q1)", { decimals: 2, defaultVal: `N/A (n<${MIN_SCORES_FOR_QUARTILES})` });
+             updateElement(Cache.outputElements.skewness, skewness, "Skewness", { decimals: 3, defaultVal: `N/A (n<${MIN_SCORES_FOR_SKEWNESS})` });
+             updateElement(Cache.outputElements.kurtosis, kurtosis, "Kurtosis (Excess)", { decimals: 3, defaultVal: `N/A (n<${MIN_SCORES_FOR_KURTOSIS})` });
+
+             if (typeof targetScore === 'number' && !isNaN(targetScore)) {
+                 const countAbove = targetStats.countAbove;
+                 const percentAbove = targetStats.percentAbove;
+                 const targetScoreFormatted = formatStat(targetScore, 2);
+                 let targetStatText = '-';
+                 if (!isNaN(countAbove) && !isNaN(percentAbove)) {
+                     targetStatText = `${formatStat(countAbove, 0)} students (${formatStat(percentAbove, 1)}%) met or exceeded`;
+                 }
+                 if(Cache.outputElements.targetScoreValueClass) Cache.outputElements.targetScoreValueClass.textContent = targetScoreFormatted;
+                 if(Cache.outputElements.targetStats) Cache.outputElements.targetStats.textContent = targetStatText;
+                 if(Cache.outputElements.targetStatsRow) Cache.outputElements.targetStatsRow.style.display = 'flex';
+                 currentRawStatsText += `Target Score (${targetScoreFormatted}) Stats: ${targetStatText}\n`;
+             } else {
+                 if(Cache.outputElements.targetStatsRow) Cache.outputElements.targetStatsRow.style.display = 'none';
+             }
+
+             Cache.resultsContainer.style.display = 'block';
+             if (Cache.copyResultsBtn) Cache.copyResultsBtn.style.display = 'inline-flex';
+
+             updatePercentileSlider(stats.min, stats.max, stats.sortedScores);
+
+             setTimeout(() => {
+                 Cache.resultsContainer?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+             }, 150);
+
+             initializeTooltips();
+        }
+
+        function getChartColors() {
+             const defaults = {
+                 highlight: 'rgba(220, 53, 69, 0.8)', default: 'rgba(0, 123, 255, 0.65)',
+                 border: 'rgba(0, 123, 255, 1)', highlightBorder: 'rgba(220, 53, 69, 1)',
+                 axis: '#495057', grid: 'rgba(0, 0, 0, 0.08)',
+                 line: 'rgba(111, 66, 193, 0.9)', linePoint: 'rgba(111, 66, 193, 1)'
+             };
+             try {
+                const style = getComputedStyle(document.documentElement);
+                const getColor = (varName, fallback) => style.getPropertyValue(varName).trim() || fallback;
+
+                return {
+                    highlight: getColor('--chart-highlight-color', defaults.highlight),
+                    default: getColor('--chart-default-color', defaults.default),
+                    border: getColor('--chart-border-color', defaults.border),
+                    highlightBorder: getColor('--chart-highlight-border-color', defaults.highlightBorder),
+                    axis: getColor('--chart-axis-color', defaults.axis),
+                    grid: getColor('--chart-grid-color', defaults.grid),
+                    line: getColor('--chart-line-color', defaults.line),
+                    linePoint: getColor('--chart-line-point-color', defaults.linePoint)
+                };
+             } catch (e) {
+                 console.warn("Could not read CSS variables for chart colors, using defaults.", e);
+                 return defaults;
+             }
+        }
+
+        function calculateHistogramBins(sortedScores, dataMin, dataMax) {
+            const n = sortedScores.length;
+            const range = dataMax - dataMin;
+
+            let numBins;
+            const q1 = ss.quantileSorted(sortedScores, 0.25);
+            const q3 = ss.quantileSorted(sortedScores, 0.75);
+            const iqr = q3 - q1;
+
+            if (!isNaN(iqr) && iqr > FLOAT_PRECISION_EPSILON && n > 0) {
+                const fdBinWidth = 2 * iqr * Math.pow(n, -1/3);
+                if (fdBinWidth > FLOAT_PRECISION_EPSILON && range > FLOAT_PRECISION_EPSILON) {
+                    numBins = Math.ceil(range / fdBinWidth);
+                } else {
+                     numBins = Math.ceil(1 + Math.log2(n));
+                }
+             } else {
+                 numBins = Math.ceil(1 + Math.log2(n));
+             }
+
+             const minBins = 3;
+             const maxBinsAllowed = Math.max(minBins, Math.min(50, Math.floor(n / 2)));
+             numBins = Math.max(minBins, numBins);
+             if (n > minBins * 2) {
+                numBins = Math.min(maxBinsAllowed, numBins);
+             }
+             numBins = Math.round(numBins);
+
+             const effectiveRange = range + FLOAT_PRECISION_EPSILON * 100;
+             let binWidth = effectiveRange / numBins;
+
+             if (binWidth > FLOAT_PRECISION_EPSILON) {
+                 const magnitude = Math.floor(Math.log10(binWidth));
+                 let precisionFactor = 1;
+                 if (magnitude < -1) precisionFactor = Math.pow(10, Math.abs(magnitude) + 1);
+                 else if (magnitude < 1) precisionFactor = 10;
+
+                 binWidth = Math.round(binWidth * precisionFactor) / precisionFactor;
+                 binWidth = Math.max(binWidth, FLOAT_PRECISION_EPSILON * 10);
+             } else {
+                 binWidth = 1;
+                 numBins = 1;
+             }
+
+            let startValue = Math.floor(dataMin / binWidth) * binWidth;
+            if (startValue > dataMin - FLOAT_PRECISION_EPSILON) {
+                 startValue -= binWidth;
+            }
+            startValue = Math.min(startValue, dataMin);
+
+            const adjustedEnd = Math.ceil(dataMax / binWidth) * binWidth;
+            numBins = Math.round((adjustedEnd - startValue) / binWidth);
+            numBins = Math.max(1, numBins);
+
+            return { numBins, binWidth, startValue };
+        }
+
+        function generateBinData(sortedScores, yourScore, dataMin, dataMax) {
+            const n = sortedScores.length;
+            currentHistogramBins = [];
+            if (n === 0 || Math.abs(dataMax - dataMin) <= FLOAT_PRECISION_EPSILON) {
+                return { bins: [], labels: [], binCounts: [], backgroundColors: [], borderColors: [], yourBinIndex: -1 };
+            }
+
+            const { numBins, binWidth, startValue } = calculateHistogramBins(sortedScores, dataMin, dataMax);
+            const colors = getChartColors();
+
+            const bins = [];
+            const labels = [];
+            const binCounts = [];
+            const backgroundColors = [];
+            const borderColors = [];
+            let currentBinStart = startValue;
+            let yourBinIndex = -1;
+
+            for (let i = 0; i < numBins; i++) {
+                const currentBinEnd = currentBinStart + binWidth;
+                bins.push({ start: currentBinStart, end: currentBinEnd, count: 0 });
+
+                const labelDecimals = binWidth < 1 ? 2 : (binWidth < 10 ? 1 : 0);
+                const labelStart = formatStat(currentBinStart, labelDecimals, 'N/A');
+                const labelEnd = formatStat(currentBinEnd, labelDecimals, 'N/A');
+                labels.push(`${labelStart} to <${labelEnd}`);
+
+                currentBinStart += binWidth;
+            }
+
+            sortedScores.forEach(score => {
+                 let assigned = false;
+                 for (let i = 0; i < bins.length; i++) {
+                     const bin = bins[i];
+                     const isLastBin = i === bins.length - 1;
+
+                     const scoreFitsLower = score >= bin.start - FLOAT_PRECISION_EPSILON;
+                     const scoreFitsUpperStrict = score < bin.end - FLOAT_PRECISION_EPSILON;
+                     const scoreFitsUpperInclusiveLast = isLastBin && score <= bin.end + FLOAT_PRECISION_EPSILON;
+
+                     if (scoreFitsLower && (scoreFitsUpperStrict || scoreFitsUpperInclusiveLast)) {
+                         bin.count++;
+                         assigned = true;
+
+                         if (yourBinIndex === -1) {
+                             const yourScoreFitsLower = yourScore >= bin.start - FLOAT_PRECISION_EPSILON;
+                             const yourScoreFitsUpperStrict = yourScore < bin.end - FLOAT_PRECISION_EPSILON;
+                             const yourScoreFitsUpperInclusiveLast = isLastBin && yourScore <= bin.end + FLOAT_PRECISION_EPSILON;
+                              if(yourScoreFitsLower && (yourScoreFitsUpperStrict || yourScoreFitsUpperInclusiveLast)) {
+                                 yourBinIndex = i;
+                             }
+                         }
+                         break;
+                     }
+                 }
+                  if (!assigned) {
+                     console.warn("Score could not be assigned to a bin:", score, "Min/Max:", dataMin, dataMax, "Bins:", bins);
+                      if (bins.length > 0) {
+                          if (score <= bins[0].start + FLOAT_PRECISION_EPSILON) bins[0].count++;
+                          else if (score >= bins[bins.length-1].end - FLOAT_PRECISION_EPSILON) bins[bins.length-1].count++;
+                          if (yourBinIndex === -1 && Math.abs(score - yourScore) < FLOAT_PRECISION_EPSILON) {
+                              if (score <= bins[0].start + FLOAT_PRECISION_EPSILON) yourBinIndex = 0;
+                              else if (score >= bins[bins.length-1].end - FLOAT_PRECISION_EPSILON) yourBinIndex = bins.length - 1;
+                          }
+                      }
+                  }
+             });
+
+            bins.forEach((bin, i) => {
+                binCounts.push(bin.count);
+                if (i === yourBinIndex) {
+                    backgroundColors.push(colors.highlight);
+                    borderColors.push(colors.highlightBorder);
+                } else {
+                    backgroundColors.push(colors.default);
+                    borderColors.push(colors.border);
+                }
+            });
+
+            currentHistogramBins = bins.map((bin, i) => ({
+                label: labels[i],
+                count: bin.count,
+                isYourBin: i === yourBinIndex
+            }));
+
+            return { bins, labels, binCounts, backgroundColors, borderColors, yourBinIndex };
+        }
+
+
+        function renderDistributionChart(sortedScores, yourScore, dataMin, dataMax, isUpdate = false) {
+            if (!librariesInitialized || !Cache.distributionChartCanvas || !Cache.distributionChartContainer) {
+                 console.warn("Chart rendering skipped: Libraries not ready or canvas/container element not found.");
+                 showChartMessage("Could not render chart. Essential components might be missing.", 'danger');
+                 if(Cache.downloadChartBtn) Cache.downloadChartBtn.style.display = 'none';
+                 return;
+            }
+             if (typeof Chart === 'undefined') {
+                 showChartMessage("Chart.js library is not available. Cannot render chart.", 'danger');
+                 if(Cache.downloadChartBtn) Cache.downloadChartBtn.style.display = 'none';
+                 return;
+            }
+
+            const n = sortedScores.length;
+            if (n < MIN_SCORES_FOR_CHART || Math.abs(dataMax - dataMin) <= FLOAT_PRECISION_EPSILON) {
+                console.warn("Chart rendering skipped due to insufficient data or zero range.");
+                if(distributionChart) {
+                    distributionChart.destroy();
+                    distributionChart = null;
+                }
+                if (n < MIN_SCORES_FOR_CHART) {
+                    showChartMessage(`Chart requires at least ${MIN_SCORES_FOR_CHART} class scores.`, 'info');
+                } else {
+                    showChartMessage("All class scores are identical; no distribution to chart.", 'info');
+                }
+                if(Cache.downloadChartBtn) Cache.downloadChartBtn.style.display = 'none';
+                return;
+            }
+
+            if (distributionChart && !isUpdate) {
+                distributionChart.destroy();
+                distributionChart = null;
+            }
+
+            const colors = getChartColors();
+            const { labels, binCounts, backgroundColors, borderColors, yourBinIndex } = generateBinData(sortedScores, yourScore, dataMin, dataMax);
+
+            if (!labels || labels.length === 0) {
+                 console.error("Histogram bin generation failed or resulted in zero bins.");
+                 showChartMessage("Could not generate histogram bins for the chart.", 'danger');
+                 if(Cache.downloadChartBtn) Cache.downloadChartBtn.style.display = 'none';
+                 return;
+            }
+
+            const chartData = {
+                labels: labels,
+                datasets: [
+                    {
+                        type: 'bar', label: 'Student Count', data: binCounts,
+                        backgroundColor: backgroundColors, borderColor: borderColors,
+                        borderWidth: 1, order: 2,
+                        barPercentage: 1.0,
+                        categoryPercentage: 0.95
+                    },
+                    {
+                        type: 'line', label: 'Distribution Shape', data: binCounts,
+                        borderColor: colors.line,
+                        backgroundColor: 'transparent',
+                        pointBackgroundColor: colors.linePoint,
+                        pointBorderColor: colors.linePoint,
+                        borderWidth: 2.5, pointRadius: 3, pointHoverRadius: 5,
+                        tension: 0.1,
+                        fill: false, order: 1
+                    }
+                ]
+            };
+
+            const maxBinCount = binCounts.length > 0 ? ss.max(binCounts) : 1;
+            const yAxisStepSize = Math.max(1, Math.ceil(maxBinCount / 8));
+
+            const chartOptions = {
+                responsive: true,
+                maintainAspectRatio: false,
+                animation: !isUpdate,
+                interaction: {
+                    mode: 'index',
+                    intersect: false
+                },
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'top',
+                        labels: { boxWidth: 15, padding: 15 }
+                    },
+                    title: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            title: (tooltipItems) => tooltipItems.length > 0 ? `Score Range: ${tooltipItems[0].label}` : '',
+                            label: (context) => {
+                                let label = context.dataset.label || '';
+                                if (label) label += ': ';
+                                if (context.parsed.y !== null) label += context.parsed.y;
+                                if (context.datasetIndex === 0 && context.dataIndex === yourBinIndex) {
+                                    label += ' (Includes Your Score)';
+                                }
+                                return label;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: { display: true, text: 'Number of Students', font: { weight: '500'} },
+                        ticks: {
+                            precision: 0,
+                            stepSize: yAxisStepSize
+                        },
+                        grid: { color: colors.grid }
+                     },
+                    x: {
+                        title: { display: true, text: 'Score Ranges (Bins)', font: { weight: '500'} },
+                        ticks: {
+                            maxRotation: 45,
+                            minRotation: 0,
+                            autoSkipPadding: 15
+                        },
+                        grid: { display: false }
+                    }
+                }
+            };
+
+            try {
+                 if (isUpdate && distributionChart) {
+                     distributionChart.data = chartData;
+                     distributionChart.options.scales.y.grid.color = colors.grid;
+                     distributionChart.options.scales.y.title.color = colors.axis;
+                     distributionChart.options.scales.y.ticks.color = colors.axis;
+                     distributionChart.options.scales.x.title.color = colors.axis;
+                     distributionChart.options.scales.x.ticks.color = colors.axis;
+                     distributionChart.update('none');
+                 } else {
+                     const ctx = Cache.distributionChartCanvas?.getContext('2d');
+                     if (!ctx) throw new Error("Could not get 2D context from canvas.");
+                     distributionChart = new Chart(ctx, { data: chartData, options: chartOptions });
+                 }
+                 hideChartMessage();
+                 if(Cache.downloadChartBtn) Cache.downloadChartBtn.style.display = 'inline-block';
+             } catch (e) {
+                 console.error("Failed to render or update Distribution Chart:", e);
+                 showChartMessage(`Error rendering chart: ${e.message}. Check console.`, 'danger');
+                 if (distributionChart && !isUpdate) {
+                     distributionChart.destroy();
+                     distributionChart = null;
+                 }
+                 if(Cache.downloadChartBtn) Cache.downloadChartBtn.style.display = 'none';
+            }
+        }
+
+        function showChartMessage(message, type = 'info') {
+            showMessage(Cache.distributionChartMessage, message, type, type === 'danger' ? 'bi-exclamation-octagon-fill' : 'bi-graph-up');
+            if (Cache.distributionChartContainer) Cache.distributionChartContainer.style.display = 'none';
+            if (Cache.chartCaption) Cache.chartCaption.style.display = 'none';
+            if (Cache.downloadChartBtn) Cache.downloadChartBtn.style.display = 'none';
+
+            if (distributionChart && type !== 'processing') {
+                 distributionChart.destroy();
+                 distributionChart = null;
+            }
+        }
+
+        function hideChartMessage() {
+             hideMessage(Cache.distributionChartMessage);
+             if (Cache.distributionChartContainer) Cache.distributionChartContainer.style.display = 'block';
+             if (Cache.chartCaption) Cache.chartCaption.style.display = 'block';
+        }
+
+        function showMessage(element, message, type = 'info', iconClass = 'bi-info-circle-fill') {
+            if (!element) return;
+
+            const alertClass = `alert-${type}`;
+            const iconElement = element.querySelector('i');
+            const textElement = element.querySelector('span');
+
+            if (iconElement) iconElement.className = `bi ${iconClass}`;
+            if (textElement) textElement.textContent = message;
+            else {
+                 element.innerHTML = `<i class="bi ${iconClass}"></i><span>${message}</span>`;
+            }
+
+            element.className = `chart-message alert ${alertClass}`;
+            element.style.display = 'flex';
+            element.setAttribute('aria-live', type === 'danger' ? 'assertive' : 'polite');
+        }
+
+        function hideMessage(element) {
+            if (!element) return;
+            element.style.display = 'none';
+            element.setAttribute('aria-live', 'off');
+        }
+
+        function renderFrequencyTable() {
+            if (!Cache.frequencyTableBody || !Cache.frequencyTableContainer || !Cache.frequencyTableMessage || !Cache.frequencyTableCaption) {
+                console.warn("Frequency table elements not found.");
+                return;
+            }
+
+            if (!currentHistogramBins || currentHistogramBins.length === 0) {
+                showMessage(Cache.frequencyTableMessage, "No data available to generate frequency table.", 'info', 'bi-table');
+                Cache.frequencyTableContainer.style.display = 'none';
+                Cache.frequencyTableCaption.style.display = 'none';
+                return;
+            }
+
+            Cache.frequencyTableBody.innerHTML = '';
+
+            currentHistogramBins.forEach(bin => {
+                const row = Cache.frequencyTableBody.insertRow();
+                const cellRange = row.insertCell();
+                const cellCount = row.insertCell();
+
+                cellRange.textContent = bin.label;
+                cellCount.textContent = bin.count;
+                cellCount.style.textAlign = 'center';
+
+                if (bin.isYourBin) {
+                    row.style.fontWeight = 'bold';
+                    row.style.backgroundColor = 'var(--chart-highlight-color)';
+                    row.classList.add('table-active');
+                }
+            });
+
+            hideMessage(Cache.frequencyTableMessage);
+            Cache.frequencyTableContainer.style.display = 'block';
+            Cache.frequencyTableCaption.style.display = 'block';
+        }
+
+        function updatePercentileSlider(minScore, maxScore, sortedScores) {
+            if (!Cache.percentileSlider || !Cache.sliderScoreValue || !Cache.sliderPercentileValue || !Cache.percentileSliderGroup || !Cache.percentileSliderMessage) {
+                console.warn("Percentile slider elements not found.");
+                return;
+            }
+
+            if (sortedScores.length < 1 || isNaN(minScore) || isNaN(maxScore) || minScore >= maxScore) {
+                showMessage(Cache.percentileSliderMessage, "Insufficient or invalid data to enable percentile slider.", 'info', 'bi-sliders');
+                Cache.percentileSliderGroup.style.display = 'none';
+                Cache.percentileSlider.disabled = true;
+                return;
+            }
+
+            Cache.percentileSlider.min = minScore;
+            Cache.percentileSlider.max = maxScore;
+            const range = maxScore - minScore;
+            let step = 1;
+            if (range < 10) step = 0.1;
+            else if (range < 50) step = 0.5;
+            Cache.percentileSlider.step = step;
+
+            Cache.percentileSlider.value = ss.medianSorted(sortedScores);
+            Cache.percentileSlider.disabled = false;
+            handlePercentileSliderInput();
+
+            hideMessage(Cache.percentileSliderMessage);
+            Cache.percentileSliderGroup.style.display = 'block';
+        }
+
+        function handlePercentileSliderInput() {
+            if (!Cache.percentileSlider || !Cache.sliderScoreValue || !Cache.sliderPercentileValue || !currentAnalysisStats.sortedScores) return;
+
+            const selectedScore = parseFloat(Cache.percentileSlider.value);
+            const sortedScores = currentAnalysisStats.sortedScores;
+
+            if (isNaN(selectedScore) || !sortedScores || sortedScores.length === 0) {
+                Cache.sliderScoreValue.textContent = 'N/A';
+                Cache.sliderPercentileValue.textContent = 'N/A';
+                return;
+            }
+
+            const percentile = calculatePercentile(selectedScore, sortedScores);
+
+            Cache.sliderScoreValue.textContent = formatStat(selectedScore, Cache.percentileSlider.step < 1 ? 1 : 0);
+            Cache.sliderPercentileValue.textContent = formatStat(percentile, 1) + '%';
+        }
+
+        function handleDownloadChartClick() {
+            if (!distributionChart || !Cache.distributionChartCanvas) {
+                console.error("Cannot download: Chart instance or canvas not available.");
+                alert("Chart is not available for download.");
+                return;
+            }
+
+            try {
+                const dataUrl = distributionChart.toBase64Image('image/png');
+                const link = document.createElement('a');
+                link.href = dataUrl;
+                link.download = 'student_performance_chart.png';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            } catch (e) {
+                console.error("Failed to download chart:", e);
+                alert("An error occurred while trying to download the chart.");
+            }
+        }
+
+        function handleExampleDataClick() {
+            if (!Cache.yourScoreInput || !Cache.classScoresInput || !Cache.targetScoreInput) return;
+
+            Cache.yourScoreInput.value = '78';
+            Cache.targetScoreInput.value = '70';
+            Cache.classScoresInput.value = `
+                85, 92, 71, 65, 78, 88, 95, 62, 75, 81,
+                90, 68, 73, 84, 77, 91, 60, 80, 86, 70,
+                79, 83, 67, 94, 74, 89, 63, 76, 87, 72,
+                93, 69, 82, 66, 96, 61, 99, 55, 45, 78
+            `;
+            updateScoreCount();
+        }
+
+        function handleFormSubmit(event) {
+            event.preventDefault();
+            event.stopPropagation();
+            disposeTooltips();
+
+            if (!checkAndInitializeLibraries()) {
+                showGeneralError("Cannot analyze: Core libraries failed to load. Please reload or check console.");
+                if(Cache.submitButton) Cache.submitButton.disabled = true;
+                return;
+            }
+
+            setLoadingState(true);
+            clearGeneralError();
+            if (Cache.resultsContainer) Cache.resultsContainer.style.display = 'none';
+            if (Cache.copyResultsBtn) Cache.copyResultsBtn.style.display = 'none';
+            currentAnalysisStats = {};
+            currentHistogramBins = [];
+            showChartMessage("Processing...", 'info');
+            showMessage(Cache.frequencyTableMessage, "Processing...", 'info', 'bi-table');
+            showMessage(Cache.percentileSliderMessage, "Processing...", 'info', 'bi-sliders');
+
+
+            const isYourScoreValid = validateInput(Cache.yourScoreInput);
+            const isTargetScoreValid = validateInput(Cache.targetScoreInput);
+            const isClassScoresValid = validateInput(Cache.classScoresInput);
+
+            if (!isYourScoreValid || !isClassScoresValid || !isTargetScoreValid) {
+                const firstInvalid = Cache.marksForm?.querySelector('.is-invalid');
+                firstInvalid?.focus();
+                showGeneralError("Please correct the errors highlighted in the form before analyzing.");
+                showChartMessage("Analysis halted due to input errors.", 'danger');
+                showMessage(Cache.frequencyTableMessage, "Analysis halted due to input errors.", 'danger', 'bi-table');
+                showMessage(Cache.percentileSliderMessage, "Analysis halted due to input errors.", 'danger', 'bi-sliders');
+                setLoadingState(false);
+                return;
+            }
+
+            setTimeout(() => {
+                try {
+                    const yourScoreValue = parseFloat(Cache.yourScoreInput.value);
+                    const targetScoreValue = Cache.targetScoreInput.value.trim() !== '' ? parseFloat(Cache.targetScoreInput.value) : NaN;
+                    const classScores = parseScores(Cache.classScoresInput.value);
+
+                    if (classScores.length === 0) {
+                         throw new Error("No valid numeric scores found in 'Class Scores'.");
+                    }
+
+                    currentAnalysisStats = calculateStats(yourScoreValue, classScores, targetScoreValue);
+
+                    displayResults(currentAnalysisStats);
+
+                    renderDistributionChart(
+                         currentAnalysisStats.sortedScores,
+                         currentAnalysisStats.yourScore,
+                         currentAnalysisStats.min,
+                         currentAnalysisStats.max,
+                         false
+                     );
+
+                    renderFrequencyTable();
+
+                } catch (error) {
+                    console.error("Analysis Error:", error);
+                    showGeneralError(`Analysis failed: ${error.message || 'An unknown error occurred'}.`);
+                    if (Cache.resultsContainer) Cache.resultsContainer.style.display = 'none';
+                    currentAnalysisStats = {};
+                    currentHistogramBins = [];
+                    showChartMessage('Could not generate chart due to an analysis error.', 'danger');
+                    showMessage(Cache.frequencyTableMessage, "Could not generate frequency table due to an analysis error.", 'danger', 'bi-table');
+                    showMessage(Cache.percentileSliderMessage, "Could not update percentile slider due to an analysis error.", 'danger', 'bi-sliders');
+                } finally {
+                    setLoadingState(false);
+                }
+            }, 50);
+        }
+
+        function handleFormReset() {
+             disposeTooltips();
+
+             if (Cache.resultsContainer) {
+                 Cache.resultsContainer.style.display = 'none';
+             }
+             clearGeneralError();
+
+             showChartMessage("Please enter data and click Analyze to visualize the score distribution.", 'info');
+             showMessage(Cache.frequencyTableMessage, "Frequency table will be generated after analysis.", 'info', 'bi-table');
+             showMessage(Cache.percentileSliderMessage, "Slider will be enabled after analysis.", 'info', 'bi-sliders');
+             if (Cache.frequencyTableContainer) Cache.frequencyTableContainer.style.display = 'none';
+             if (Cache.frequencyTableCaption) Cache.frequencyTableCaption.style.display = 'none';
+             if (Cache.percentileSliderGroup) Cache.percentileSliderGroup.style.display = 'none';
+             if (Cache.percentileSlider) Cache.percentileSlider.disabled = true;
+             if (Cache.downloadChartBtn) Cache.downloadChartBtn.style.display = 'none';
+
+
+             currentAnalysisStats = {};
+             currentRawStatsText = '';
+             currentHistogramBins = [];
+
+             if (Cache.copyResultsBtn) Cache.copyResultsBtn.style.display = 'none';
+             if(Cache.copyFeedback) Cache.copyFeedback.classList.remove('show');
+
+             [Cache.yourScoreInput, Cache.targetScoreInput, Cache.classScoresInput].forEach(input => {
+                 if (input) {
+                     input.removeAttribute('aria-invalid');
+                     input.classList.remove('is-invalid');
+                     const feedbackDivId = input.getAttribute('aria-describedby');
+                     const feedbackDiv = feedbackDivId ? document.getElementById(feedbackDivId.split(' ')[0]) : null;
+                     if (feedbackDiv) feedbackDiv.textContent = "";
+                 }
+             });
+
+             Cache.marksForm?.reset();
+             updateScoreCount();
+
+             Cache.yourScoreInput?.focus();
+        }
+
+        async function handleCopyResults() {
+            if (!currentRawStatsText || !Cache.copyResultsBtn || !Cache.copyFeedback) return;
+
+            if (!navigator.clipboard || !navigator.clipboard.writeText) {
+                console.warn("Clipboard API not supported or available (requires secure context like HTTPS or localhost).");
+                Cache.copyFeedback.textContent = 'Auto-copy unavailable!';
+                Cache.copyFeedback.style.color = 'var(--bs-warning)';
+                Cache.copyFeedback.classList.add('show');
+                setTimeout(() => {
+                    if (Cache.copyFeedback) Cache.copyFeedback.classList.remove('show');
+                }, 3000);
+                return;
+            }
+
+            Cache.copyResultsBtn.disabled = true;
+
+            try {
+                await navigator.clipboard.writeText(currentRawStatsText.trim());
+
+                Cache.copyFeedback.textContent = 'Copied!';
+                Cache.copyFeedback.style.color = 'var(--bs-success)';
+                Cache.copyFeedback.classList.add('show');
+                Cache.copyResultsBtn.classList.add('btn-success', 'text-white');
+                Cache.copyResultsBtn.classList.remove('btn-outline-info');
+
+                setTimeout(() => {
+                    if (Cache.copyFeedback) Cache.copyFeedback.classList.remove('show');
+                    if (Cache.copyResultsBtn) {
+                        Cache.copyResultsBtn.classList.remove('btn-success', 'text-white');
+                        Cache.copyResultsBtn.classList.add('btn-outline-info');
+                        Cache.copyResultsBtn.disabled = false;
+                    }
+                }, 2000);
+
+            } catch (err) {
+                console.error('Failed to copy results to clipboard:', err);
+                Cache.copyFeedback.textContent = 'Copy failed!';
+                Cache.copyFeedback.style.color = 'var(--bs-danger)';
+                Cache.copyFeedback.classList.add('show');
+
+                 setTimeout(() => {
+                    if (Cache.copyFeedback) Cache.copyFeedback.classList.remove('show');
+                    if (Cache.copyResultsBtn) Cache.copyResultsBtn.disabled = false;
+                 }, 3000);
+            }
+        }
+
+        initializeApp();
+
+    });
+   </script>
+
+</body>
+</html>
