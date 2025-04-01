@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en" data-bs-theme="light">
+<html lang="en" data-bs-theme="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Enhanced Student Performance Analyzer</title>
+    <title>Student Performance Analyzer</title>
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
@@ -19,9 +19,7 @@
             --bs-success-rgb: 40, 167, 69;
             --bs-secondary-rgb: 108, 117, 125;
             --bs-warning-rgb: 255, 193, 7;
-            --bs-orange-rgb: 253, 126, 20;
             --app-purple-rgb: 111, 66, 193;
-            --app-pink-rgb: 214, 51, 132;
 
             --chart-highlight-alpha: 0.8;
             --chart-default-alpha: 0.65;
@@ -30,43 +28,8 @@
             --bs-border-radius-lg: 0.5rem;
             --bs-border-radius-pill: 50rem;
 
-            --anim-fast: 0.2s;
-            --anim-medium: 0.4s;
-            --anim-slow: 0.6s;
-        }
-
-        [data-bs-theme="light"] {
-             --bs-body-bg: #f8f9fa;
-             --bs-body-color: #212529;
-             --bs-border-color: #dee2e6;
-             --bs-border-color-translucent: rgba(0, 0, 0, 0.1);
-             --bs-emphasis-color: #000;
-             --bs-secondary-color: #6c757d;
-             --card-bg: var(--bs-white);
-             --list-group-hover-bg: #f0f2f5;
-             --chart-highlight-color: rgba(var(--bs-danger-rgb), var(--chart-highlight-alpha));
-             --chart-default-color: rgba(var(--bs-primary-rgb), var(--chart-default-alpha));
-             --chart-border-color: rgba(var(--bs-primary-rgb), 1);
-             --chart-highlight-border-color: rgba(var(--bs-danger-rgb), 1);
-             --chart-axis-color: #495057;
-             --chart-grid-color: rgba(0, 0, 0, 0.08);
-             --chart-line-color: rgba(var(--app-purple-rgb), 0.9);
-             --chart-line-point-color: rgba(var(--app-purple-rgb), 1);
-             --text-success-emphasis: #198754;
-             --text-warning-emphasis: #c55a11;
-             --list-group-bg: var(--bs-white);
-             --tooltip-bg: #212529;
-             --tooltip-color: var(--bs-white);
-             --footer-bg: rgba(var(--bs-secondary-rgb), 0.02);
-             --navbar-bg: #ffffff;
-             --navbar-color: #343a40;
-             --navbar-brand-color: var(--bs-primary);
-             --theme-toggle-icon-color: var(--bs-primary);
-             --theme-toggle-icon-hover-color: var(--bs-orange);
-             --card-header-bg: rgba(var(--bs-primary-rgb), 0.04);
-             --table-striped-bg: rgba(0, 0, 0, 0.03);
-             --table-border-color: var(--bs-border-color);
-             --table-hover-bg: rgba(0, 0, 0, 0.05);
+            --anim-fast: 0.15s;
+            --anim-medium: 0.3s;
         }
 
         [data-bs-theme="dark"] {
@@ -95,17 +58,13 @@
             --navbar-bg: #212529;
             --navbar-color: rgba(255, 255, 255, 0.75);
             --navbar-brand-color: var(--bs-white);
-            --theme-toggle-icon-color: var(--bs-warning);
-            --theme-toggle-icon-hover-color: #ffdd80;
             --card-header-bg: rgba(var(--bs-primary-rgb), 0.1);
             --table-striped-bg: rgba(255, 255, 255, 0.05);
             --table-border-color: var(--bs-border-color);
             --table-hover-bg: rgba(255, 255, 255, 0.075);
         }
 
-        html { scroll-behavior: smooth; }
         body {
-             transition: background-color var(--anim-medium) ease, color var(--anim-medium) ease;
              padding-top: 5rem;
              background-color: var(--bs-body-bg);
              color: var(--bs-body-color);
@@ -113,7 +72,6 @@
              display: flex;
              flex-direction: column;
              font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", "Noto Sans", "Liberation Sans", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
-             overflow-x: hidden;
         }
         .container-lg { flex-grow: 1; width: 100%; }
         header { margin-bottom: 2.5rem; }
@@ -124,12 +82,10 @@
             padding: 2rem 1rem;
             background-color: var(--footer-bg);
             border-top: 1px solid var(--bs-border-color-translucent);
-            transition: background-color var(--anim-medium) ease, border-color var(--anim-medium) ease;
          }
 
         .navbar {
             box-shadow: 0 2px 5px rgba(0,0,0,.1);
-            transition: background-color var(--anim-medium) ease, box-shadow var(--anim-medium) ease;
             background-color: var(--navbar-bg);
             border-bottom: 1px solid var(--bs-border-color-translucent);
         }
@@ -140,61 +96,29 @@
         .navbar .navbar-brand:hover {
             color: var(--bs-primary);
         }
-        .navbar .nav-link {
-            color: var(--navbar-color);
-            transition: color var(--anim-fast) ease;
-        }
-        .navbar .nav-link:hover {
-            color: var(--bs-emphasis-color);
-        }
-        .theme-toggle-btn {
-            color: var(--theme-toggle-icon-color);
-            transition: color var(--anim-fast) ease, transform var(--anim-fast) ease;
-        }
-        .theme-toggle-btn:hover {
-            color: var(--theme-toggle-icon-hover-color);
-            transform: scale(1.1) rotate(10deg);
-        }
 
         .card {
             margin-bottom: 1.5rem;
-            transition: box-shadow var(--anim-medium) ease, background-color var(--anim-medium) ease, transform var(--anim-medium) ease;
             border: 1px solid var(--bs-border-color);
             background-color: var(--card-bg);
             border-radius: var(--bs-border-radius-lg);
             box-shadow: 0 .125rem .25rem rgba(0,0,0,.075);
-            overflow: hidden;
+             overflow: hidden;
         }
-        .card:hover {
-            box-shadow: 0 .75rem 1.5rem rgba(0,0,0,.12);
-            transform: translateY(-5px);
-        }
-        [data-bs-theme="dark"] .card:hover {
-            box-shadow: 0 .75rem 1.5rem rgba(0, 0, 0, .25);
-        }
+
         .card-header {
             background-color: var(--card-header-bg);
             border-bottom: 1px solid var(--bs-border-color);
             font-weight: 500;
             padding: 1rem 1.25rem;
-            transition: background-color var(--anim-medium) ease, border-color var(--anim-medium) ease;
         }
-        .card-header i {
-            color: var(--bs-primary);
-            opacity: 0.9;
-        }
-        [data-bs-theme="dark"] .card-header i {
-             color: #6ea8fe;
-        }
-        .results-section .card-header i.bi-people-fill { color: var(--bs-info); }
-        [data-bs-theme="dark"] .results-section .card-header i.bi-people-fill { color: #6edff6; }
-        .visualization-section .card-header i.bi-bar-chart-steps { color: var(--bs-success); }
-        [data-bs-theme="dark"] .visualization-section .card-header i.bi-bar-chart-steps { color: #20c997; }
-        .frequency-table-section .card-header i.bi-table { color: var(--bs-orange); }
-        [data-bs-theme="dark"] .frequency-table-section .card-header i.bi-table { color: #fd7e14; }
-        .percentile-slider-section .card-header i.bi-sliders { color: var(--app-purple-rgb); }
-        [data-bs-theme="dark"] .percentile-slider-section .card-header i.bi-sliders { color: #a370f7; }
+        .card-header .bi { color: var(--bs-primary); opacity: 0.9; }
+        [data-bs-theme="dark"] .card-header .bi { color: #6ea8fe; }
 
+        .results-section .card-header .bi-people-fill { color: #6edff6; }
+        .visualization-section .card-header .bi-bar-chart-steps { color: #20c997; }
+        .frequency-table-section .card-header .bi-table { color: #fd7e14; }
+        .percentile-slider-section .card-header .bi-sliders { color: #a370f7; }
 
         .card-body { padding: 1.5rem; }
 
@@ -211,11 +135,7 @@
             background-size: calc(.75em + .375rem) calc(.75em + .375rem) !important;
             box-shadow: 0 0 0 0.25rem rgba(var(--bs-danger-rgb), 0.25);
         }
-        [data-bs-theme="dark"] .form-control.is-invalid,
-        [data-bs-theme="dark"] .form-select.is-invalid {
-             border-color: var(--bs-danger);
-             background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' width='12' height='12' fill='none' stroke='%23dc3545'%3e%3ccircle cx='6' cy='6' r='4.5'/%3e%3cpath stroke-linejoin='round' d='M5.8 3.6h.4L6 6.5z'/%3e%3ccircle cx='6' cy='8.2' r='.6' fill='%23dc3545' stroke='none'/%3e%3c/svg%3e") !important;
-        }
+
         .form-control:focus, .form-select:focus, .form-range:focus {
             box-shadow: 0 0 0 0.25rem rgba(var(--bs-primary-rgb), 0.25);
             border-color: rgba(var(--bs-primary-rgb), 0.8);
@@ -231,7 +151,6 @@
             margin-top: .25rem;
             font-size: .875em;
             color: var(--bs-danger);
-            animation: fadeIn var(--anim-fast) ease-out;
         }
         .is-invalid ~ .invalid-feedback { display: block; }
 
@@ -244,31 +163,22 @@
             padding: 0.3rem 0.6rem;
             border-radius: var(--bs-border-radius);
             display: inline-block;
-            transition: background-color var(--anim-medium) ease, color var(--anim-medium) ease;
          }
         #errorMessage {
             display: none;
             align-items: center;
             gap: 0.5rem;
-            animation: fadeIn var(--anim-fast) ease-out;
         }
          #errorMessage i { flex-shrink: 0; font-size: 1.2em; }
 
         .loading-spinner { display: none; width: 1.1rem; height: 1.1rem; vertical-align: text-bottom; }
         .btn .loading-spinner { margin-right: 0.4rem; }
         .btn {
-            transition: all var(--anim-fast) ease-in-out;
+            transition: background-color var(--anim-fast) ease-in-out, border-color var(--anim-fast) ease-in-out, color var(--anim-fast) ease-in-out;
             box-shadow: 0 2px 4px rgba(0,0,0,0.05);
         }
-        .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-        }
-        .btn:active {
-            transform: translateY(0px);
-            box-shadow: 0 1px 2px rgba(0,0,0,0.1);
-        }
-        button svg, button i { transition: transform var(--anim-fast) ease-in-out, display 0.1s ease-in-out; vertical-align: -0.125em; }
+
+        button svg, button i { vertical-align: -0.125em; }
         .btn-lg { padding: .6rem 1.2rem; font-size: 1rem; }
         .btn-primary {
             --bs-btn-bg: rgb(var(--bs-primary-rgb));
@@ -280,32 +190,14 @@
         }
         .rounded-pill { border-radius: var(--bs-border-radius-pill); }
 
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-        @keyframes slideInDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
-        @keyframes slideInLeft { from { opacity: 0; transform: translateX(-30px); } to { opacity: 1; transform: translateX(0); } }
-        @keyframes slideInRight { from { opacity: 0; transform: translateX(30px); } to { opacity: 1; transform: translateX(0); } }
-
-        header h1 { animation: fadeInUp var(--anim-medium) ease-out forwards; }
-        header p.lead { animation: fadeInUp var(--anim-medium) ease-out 0.1s forwards; opacity: 0; }
-        #inputCard { animation: fadeInUp var(--anim-slow) ease-out 0.2s forwards; opacity: 0; }
-
         .results-fade-in {
-            animation: fadeIn var(--anim-fast) ease-in-out forwards;
+             opacity: 0;
+             animation: fadeIn var(--anim-medium) ease-in-out forwards;
         }
-        #resultsContainer .col-xl-5 .card {
-            animation: slideInLeft var(--anim-medium) ease-out 0.1s forwards;
-            opacity: 0;
-        }
-        #resultsContainer .col-xl-7 .card {
-            animation: slideInRight var(--anim-medium) ease-out 0.2s forwards;
-            opacity: 0;
-        }
-         #resultsContainer .visualization-section .card,
-         #resultsContainer .frequency-table-section .card,
-         #resultsContainer .percentile-slider-section .card {
-            animation: fadeInUp var(--anim-medium) ease-out 0.3s forwards;
-            opacity: 0;
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        #resultsContainer .card {
+            opacity: 1;
         }
 
         .results-section .list-group-item {
@@ -318,7 +210,7 @@
             align-items: center;
             flex-wrap: wrap;
             gap: 0.5rem;
-            transition: background-color var(--anim-fast) ease-in-out, border-color var(--anim-medium) ease;
+            transition: background-color var(--anim-fast) ease-in-out;
         }
          .results-section .list-group-item:hover {
              background-color: var(--list-group-hover-bg);
@@ -332,18 +224,14 @@
              align-items: center;
              gap: 0.5rem;
              cursor: help;
-             transition: color var(--anim-medium) ease;
         }
-         .results-section strong > i {
-             color: var(--bs-primary);
+         .results-section strong > .bi {
+             color: #6ea8fe;
              font-size: 1.1em;
              opacity: 0.8;
              flex-shrink: 0;
-             transition: color var(--anim-medium) ease;
          }
-        [data-bs-theme="dark"] .results-section strong > i { color: #6ea8fe; }
-        .results-section strong[data-term-group="class"] > i { color: var(--bs-info); }
-        [data-bs-theme="dark"] .results-section strong[data-term-group="class"] > i { color: #6edff6; }
+        .results-section strong[data-term-group="class"] > .bi { color: #6edff6; }
 
         .results-section span.stat-value {
             font-weight: 500;
@@ -354,19 +242,17 @@
             display: inline-flex;
             align-items: center;
             gap: 0.25rem;
-            transition: color var(--anim-medium) ease;
         }
         #yourScoreOutput.stat-value {
             font-weight: 600;
             font-size: 1.15rem;
-            color: var(--bs-primary);
+            color: #6ea8fe;
         }
-        [data-bs-theme="dark"] #yourScoreOutput.stat-value { color: #6ea8fe; }
 
         .text-positive { color: var(--text-success-emphasis) !important; font-weight: 500; }
         .text-negative { color: var(--text-warning-emphasis) !important; font-weight: 500; }
         .text-secondary { color: var(--bs-secondary-color) !important; }
-        .stat-value i { vertical-align: -0.1em; font-size: 1.1em; }
+        .stat-value .bi { vertical-align: -0.1em; font-size: 1.1em; }
 
         .chart-container {
             position: relative;
@@ -374,7 +260,6 @@
             max-height: 500px;
             width: 100%;
             min-height: 300px;
-            animation: fadeIn var(--anim-slow) ease-out;
         }
         #distributionChart { max-width: 100%; max-height: 100%; }
 
@@ -391,15 +276,11 @@
             background-color: rgba(var(--bs-secondary-rgb), 0.03);
             color: var(--bs-secondary-color);
             margin-top: 1rem;
-            transition: background-color var(--anim-medium) ease, color var(--anim-medium) ease, border-color var(--anim-medium) ease;
-            animation: fadeIn var(--anim-medium) ease-out;
          }
-         .chart-message i {
+         .chart-message .bi {
              font-size: 2.5rem;
              margin-bottom: 0.75rem;
              opacity: 0.6;
-             transition: color var(--anim-medium) ease;
-             animation: pulse 2s infinite ease-in-out;
          }
          .chart-message.alert-info {
              background-color: rgba(var(--bs-info-rgb), 0.05);
@@ -407,7 +288,7 @@
              border-color: rgba(var(--bs-info-rgb), 0.2);
              border-style: solid;
          }
-          .chart-message.alert-info i { color: var(--bs-info); animation-name: pulse-info; }
+          .chart-message.alert-info .bi { color: var(--bs-info); }
          .chart-message.alert-danger {
              background-color: rgba(var(--bs-danger-rgb), 0.05);
              color: var(--bs-danger);
@@ -415,13 +296,11 @@
              font-weight: 500;
               border-style: solid;
          }
-          .chart-message.alert-danger i { color: var(--bs-danger); animation-name: pulse-danger; }
+          .chart-message.alert-danger .bi { color: var(--bs-danger); }
 
          #chartCaption {
              font-size: 0.85em;
              color: var(--bs-secondary-color);
-             transition: color var(--anim-medium) ease;
-             animation: fadeIn var(--anim-slow) ease-out;
          }
 
         .copy-feedback {
@@ -446,36 +325,37 @@
             box-shadow: 0 .25rem .5rem rgba(0,0,0,.15);
             text-align: left;
             border: 1px solid var(--bs-border-color-translucent);
-            transition: background-color var(--anim-medium) ease, color var(--anim-medium) ease, border-color var(--anim-medium) ease;
         }
-        .tooltip .tooltip-arrow::before { border-top-color: var(--tooltip-bg); }
+        .tooltip .tooltip-arrow::before {
+             border-top-color: var(--tooltip-bg);
+        }
         .tooltip.bs-tooltip-top .tooltip-arrow::before,
         .tooltip.bs-tooltip-auto[data-popper-placement^="top"] .tooltip-arrow::before {
             border-top-color: var(--tooltip-bg);
-            border-bottom: 0;
-            border-left: 1px solid var(--bs-border-color-translucent);
-            border-right: 1px solid var(--bs-border-color-translucent);
+            border-bottom-width: 0;
+            border-left-color: transparent !important;
+            border-right-color: transparent !important;
         }
         .tooltip.bs-tooltip-end .tooltip-arrow::before,
         .tooltip.bs-tooltip-auto[data-popper-placement^="right"] .tooltip-arrow::before {
              border-right-color: var(--tooltip-bg);
-             border-left: 0;
-             border-top: 1px solid var(--bs-border-color-translucent);
-             border-bottom: 1px solid var(--bs-border-color-translucent);
+             border-left-width: 0;
+             border-top-color: transparent !important;
+             border-bottom-color: transparent !important;
         }
         .tooltip.bs-tooltip-bottom .tooltip-arrow::before,
         .tooltip.bs-tooltip-auto[data-popper-placement^="bottom"] .tooltip-arrow::before {
              border-bottom-color: var(--tooltip-bg);
-             border-top: 0;
-             border-left: 1px solid var(--bs-border-color-translucent);
-             border-right: 1px solid var(--bs-border-color-translucent);
+             border-top-width: 0;
+             border-left-color: transparent !important;
+             border-right-color: transparent !important;
         }
         .tooltip.bs-tooltip-start .tooltip-arrow::before,
         .tooltip.bs-tooltip-auto[data-popper-placement^="left"] .tooltip-arrow::before {
              border-left-color: var(--tooltip-bg);
-             border-right: 0;
-             border-top: 1px solid var(--bs-border-color-translucent);
-             border-bottom: 1px solid var(--bs-border-color-translucent);
+             border-right-width: 0;
+             border-top-color: transparent !important;
+             border-bottom-color: transparent !important;
         }
 
         .frequency-table-container {
@@ -510,76 +390,65 @@
 
         .percentile-slider-output {
             font-weight: 500;
-            color: var(--bs-primary);
-            background-color: rgba(var(--bs-primary-rgb), 0.1);
+            color: #6ea8fe;
+            background-color: rgba(var(--bs-primary-rgb), 0.2);
             padding: 0.3rem 0.8rem;
             border-radius: var(--bs-border-radius);
             display: inline-block;
             min-width: 100px;
             text-align: center;
         }
-        [data-bs-theme="dark"] .percentile-slider-output {
-            color: #6ea8fe;
-            background-color: rgba(var(--bs-primary-rgb), 0.2);
-        }
         .form-range { cursor: pointer; }
         .form-range:disabled { cursor: not-allowed; opacity: 0.5; }
 
-        @media (prefers-reduced-motion: reduce) {
-          html { scroll-behavior: auto; }
-          *, *::before, *::after {
-            animation-duration: 0.01ms !important;
-            animation-iteration-count: 1 !important;
-            transition-duration: 0.01ms !important;
-            scroll-behavior: auto !important;
-            animation-delay: 0ms !important;
-          }
-          .results-fade-in, .invalid-feedback, #errorMessage, .chart-message, #chartCaption, .chart-container, .copy-feedback.show {
-              animation-name: fadeIn !important;
-              animation-duration: 0.1s !important;
-              opacity: 1 !important;
-          }
-          .card:hover { transform: none; }
-          .btn:hover, .btn:active { transform: none; }
-          .theme-toggle-btn:hover { transform: none; }
-          .chart-message i { animation: none !important; }
+        footer {
+            margin-top: 4rem;
+            background-color: var(--footer-bg);
+            border-top: 1px solid var(--bs-border-color-translucent);
+         }
+
+        .footer-link {
+            color: var(--bs-secondary-color);
+            text-decoration: none;
+            transition: color var(--anim-fast) ease, text-decoration var(--anim-fast) ease;
+        }
+        .footer-link:hover,
+        .footer-link:focus {
+            color: var(--bs-emphasis-color);
+            text-decoration: underline;
         }
 
-        @keyframes pulse {
-          0%, 100% { transform: scale(1); opacity: 0.6; }
-          50% { transform: scale(1.05); opacity: 0.8; }
+        #manualCopyArea {
+            display: none;
+            width: 100%;
+            min-height: 120px;
+            margin-top: 1rem;
+            font-family: var(--bs-font-monospace);
+            font-size: 0.85rem;
+            background-color: var(--bs-secondary-bg);
+            border: 1px solid var(--bs-border-color);
+            color: var(--bs-emphasis-color);
         }
-        @keyframes pulse-info {
-          0%, 100% { transform: scale(1); color: var(--bs-info); opacity: 0.6; }
-          50% { transform: scale(1.05); color: var(--bs-info); opacity: 0.9; }
-        }
-        @keyframes pulse-danger {
-          0%, 100% { transform: scale(1); color: var(--bs-danger); opacity: 0.7; }
-          50% { transform: scale(1.05); color: var(--bs-danger); opacity: 1.0; }
+
+        @media (prefers-reduced-motion: reduce) {
+          *, *::before, *::after {
+            animation: none !important;
+            transition: none !important;
+            scroll-behavior: auto !important;
+          }
+          .copy-feedback.show { opacity: 1 !important; }
         }
 
     </style>
 </head>
 <body>
 
-    <nav class="navbar navbar-expand-lg fixed-top">
+    <nav class="navbar fixed-top">
         <div class="container-lg">
             <a class="navbar-brand fw-bold d-flex align-items-center" href="#">
                 <i class="bi bi-clipboard-data-fill me-2 fs-4"></i>
                 Performance Analyzer
             </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto align-items-center">
-                    <li class="nav-item">
-                        <button id="themeToggleBtn" class="btn nav-link theme-toggle-btn" aria-label="Toggle theme">
-                            <i class="bi bi-sun-fill fs-5"></i>
-                        </button>
-                    </li>
-                </ul>
-            </div>
         </div>
     </nav>
 
@@ -589,24 +458,26 @@
             <p class="lead text-secondary">Input scores to instantly analyze performance and visualize the class distribution.</p>
         </header>
 
-        <div class="card shadow-sm" id="inputCard">
+        <div class="card" id="inputCard">
              <h5 class="card-header d-flex align-items-center">
                  <i class="bi bi-keyboard-fill me-2"></i>Enter Marks
              </h5>
             <div class="card-body p-4 p-md-5">
                 <form id="marksForm" novalidate>
-                    <div class="row g-4 align-items-start">
-                        <div class="col-md-6 col-lg-4">
+                    <div class="row g-3 justify-content-center mb-3">
+                        <div class="col-md-6 col-lg-5">
                             <label for="yourScore" class="form-label">Your Score:</label>
-                            <input type="number" class="form-control form-control-lg" id="yourScore" name="yourScore" step="any" required min="0" placeholder="e.g., 78.5" inputmode="decimal" aria-describedby="yourScoreFeedback">
+                            <input type="number" class="form-control form-control-lg" id="yourScore" name="yourScore" step="0.1" required min="0" max="100" placeholder="e.g., 78.5" inputmode="decimal" aria-describedby="yourScoreFeedback">
                             <div id="yourScoreFeedback" class="invalid-feedback" aria-live="polite"></div>
                         </div>
-                         <div class="col-md-6 col-lg-4">
+                         <div class="col-md-6 col-lg-5">
                             <label for="targetScore" class="form-label">Target/Passing Score:</label>
-                            <input type="number" class="form-control form-control-lg" id="targetScore" name="targetScore" step="any" min="0" placeholder="Optional, e.g., 70" inputmode="decimal" aria-describedby="targetScoreFeedback">
+                            <input type="number" class="form-control form-control-lg" id="targetScore" name="targetScore" step="0.1" min="0" max="100" placeholder="Optional, e.g., 70" inputmode="decimal" aria-describedby="targetScoreFeedback">
                             <div id="targetScoreFeedback" class="invalid-feedback" aria-live="polite"></div>
                         </div>
-                        <div class="col-lg-8">
+                    </div>
+                    <div class="row g-3 justify-content-center">
+                        <div class="col-lg-10">
                             <label for="classScores" class="form-label">Class Scores:</label>
                             <textarea class="form-control form-control-lg" id="classScores" name="classScores" rows="6" required placeholder="Enter all class scores here, separated by commas, spaces, or new lines (e.g., 85, 92, 71 65...)" aria-describedby="classScoresFeedback classScoresHelp scoreCountDisplay"></textarea>
                             <div id="classScoresFeedback" class="invalid-feedback" aria-live="polite"></div>
@@ -635,16 +506,18 @@
                              <span class="copy-feedback" id="copyFeedback">Copied!</span>
                          </button>
                     </div>
+                    <textarea id="manualCopyArea" readonly class="form-control mt-3" aria-label="Manual copy area for statistics"></textarea>
                 </form>
             </div>
         </div>
+
 
         <div id="resultsContainer" style="display: none;" class="results-fade-in">
             <h2 class="h4 mb-4 text-center fw-medium">Analysis Summary</h2>
             <div class="row g-4 justify-content-center">
 
-                <div class="col-12 col-xl-5 d-flex">
-                    <div class="card results-section shadow-sm w-100">
+                <div class="col-12 col-xl-6 d-flex">
+                    <div class="card results-section w-100">
                          <h5 class="card-header d-flex align-items-center"><i class="bi bi-person-badge me-2"></i>Your Performance Metrics</h5>
                         <div class="card-body p-4 d-flex flex-column">
                             <ul class="list-group list-group-flush flex-grow-1">
@@ -661,7 +534,7 @@
                                     <span id="percentileOutput" class="stat-value">-</span>
                                 </li>
                                 <li class="list-group-item">
-                                    <strong data-bs-toggle="tooltip" data-bs-placement="top" title="Measures how many standard deviations your score is away from the class mean (average). Positive values are above average, negative values are below. ≈0 is average. |Z| > 2 or 3 might indicate an unusual score relative to the group. (Requires n>=2 & non-zero Std Dev)"><i class="bi bi-sign-intersection-y-fill"></i>Z-Score:</strong>
+                                    <strong data-bs-toggle="tooltip" data-bs-placement="top" title="Measures how many standard deviations your score is away from the class mean (average). Positive values are above average, negative values are below. ≈0 is average. |Z| > 2 or 3 might indicate an unusual score relative to the group. (Uses Sample Std Dev, requires n>=2 & non-zero Std Dev)"><i class="bi bi-sign-intersection-y-fill"></i>Z-Score:</strong>
                                     <span id="zScoreOutput" class="stat-value">-</span>
                                 </li>
                                 <li class="list-group-item">
@@ -681,8 +554,8 @@
                     </div>
                 </div>
 
-                <div class="col-12 col-xl-7 d-flex">
-                     <div class="card results-section shadow-sm w-100">
+                <div class="col-12 col-xl-6 d-flex">
+                     <div class="card results-section w-100">
                          <h5 class="card-header d-flex align-items-center"><i class="bi bi-people-fill me-2"></i>Overall Class Statistics</h5>
                         <div class="card-body p-4 d-flex flex-column">
                             <ul class="list-group list-group-flush flex-grow-1">
@@ -752,10 +625,11 @@
                 </div>
             </div>
 
+
             <h2 class="h4 mt-5 mb-4 text-center fw-medium">Score Distribution Visualization</h2>
             <div class="row g-4 justify-content-center">
                 <div class="col-12 col-lg-10 col-xl-9">
-                     <div class="card visualization-section shadow-sm">
+                     <div class="card visualization-section">
                           <h5 class="card-header d-flex align-items-center"><i class="bi bi-bar-chart-steps me-2"></i>Histogram & Frequency Polygon</h5>
                          <div class="card-body p-4">
                               <div id="distributionChartMessage" class="chart-message alert alert-info" role="status" aria-live="polite">
@@ -779,7 +653,7 @@
             <h2 class="h4 mt-5 mb-4 text-center fw-medium">Frequency Distribution</h2>
              <div class="row g-4 justify-content-center">
                 <div class="col-12 col-lg-10 col-xl-9">
-                    <div class="card frequency-table-section shadow-sm">
+                    <div class="card frequency-table-section">
                         <h5 class="card-header d-flex align-items-center"><i class="bi bi-table me-2"></i>Frequency Table</h5>
                         <div class="card-body p-4">
                             <div id="frequencyTableMessage" class="chart-message alert alert-info" role="status" aria-live="polite">
@@ -795,7 +669,6 @@
                                         </tr>
                                     </thead>
                                     <tbody id="frequencyTableBody">
-
                                     </tbody>
                                 </table>
                             </div>
@@ -808,7 +681,7 @@
             <h2 class="h4 mt-5 mb-4 text-center fw-medium">Explore Percentiles</h2>
              <div class="row g-4 justify-content-center">
                 <div class="col-12 col-lg-10 col-xl-9">
-                    <div class="card percentile-slider-section shadow-sm">
+                    <div class="card percentile-slider-section">
                         <h5 class="card-header d-flex align-items-center"><i class="bi bi-sliders me-2"></i>Score to Percentile Lookup</h5>
                         <div class="card-body p-4">
                              <div id="percentileSliderMessage" class="chart-message alert alert-info" role="status" aria-live="polite">
@@ -833,11 +706,25 @@
 
     </div>
 
-    <footer class="text-center text-secondary small mt-auto">
+    <footer class="mt-auto py-4 text-secondary small">
         <div class="container-lg">
-            <p class="mb-1">🔒 All calculations performed locally in your browser. No data is sent or stored externally.</p>
-            <p class="mb-1">Built with <a href="https://getbootstrap.com/" target="_blank" rel="noopener">Bootstrap</a>, <a href="https://www.chartjs.org/" target="_blank" rel="noopener">Chart.js</a>, and <a href="https://simplestatistics.org/" target="_blank" rel="noopener">simple-statistics</a>.</p>
-            <p class="mb-0">© <span id="currentYear"></span> Performance Analyzer</p>
+            <div class="d-flex flex-column flex-sm-row justify-content-between align-items-center">
+                <div class="text-center text-sm-start mb-2 mb-sm-0">
+                    <p class="mb-1">© <span id="currentYear"></span> Performance Analyzer. All rights reserved.</p>
+                    <p class="mb-0">
+                        <a href="#" class="footer-link">Privacy Note</a>
+                        <span class="mx-1">|</span>
+                        <span>All calculations are client-side & private.</span>
+                    </p>
+                </div>
+                <div class="text-center text-sm-end">
+                    <p class="mb-0">Built with
+                        <a href="https://getbootstrap.com/" target="_blank" rel="noopener noreferrer" class="footer-link">Bootstrap</a>,
+                        <a href="https://www.chartjs.org/" target="_blank" rel="noopener noreferrer" class="footer-link">Chart.js</a>,
+                        <a href="https://simplestatistics.org/" target="_blank" rel="noopener noreferrer" class="footer-link">simple-statistics</a>.
+                    </p>
+                </div>
+            </div>
         </div>
     </footer>
 
@@ -846,9 +733,6 @@
     <script>
     document.addEventListener('DOMContentLoaded', () => {
 
-        const THEME_STORAGE_KEY = 'themePreference';
-        const LIGHT_THEME = 'light';
-        const DARK_THEME = 'dark';
         const FLOAT_PRECISION_EPSILON = 1e-9;
         const MIN_SCORES_FOR_CHART = 2;
         const MIN_SCORES_FOR_STDDEV = 2;
@@ -877,8 +761,6 @@
             loadingSpinner: document.querySelector('#marksForm button[type="submit"] .loading-spinner'),
             submitButtonTextSpan: document.querySelector('#marksForm button[type="submit"] .analyze-text'),
             submitButtonIcon: document.querySelector('#marksForm button[type="submit"] .analyze-icon'),
-            themeToggleBtn: document.getElementById('themeToggleBtn'),
-            themeIcon: document.querySelector('#themeToggleBtn i'),
 
             errorMessage: document.getElementById('errorMessage'),
             errorMessageText: document.getElementById('errorMessageText'),
@@ -900,7 +782,9 @@
             sliderPercentileValue: document.getElementById('sliderPercentileValue'),
             percentileSliderMessage: document.getElementById('percentileSliderMessage'),
 
-            outputElements: {
+            manualCopyArea: document.getElementById('manualCopyArea'),
+
+             outputElements: {
                 yourScore: document.getElementById('yourScoreOutput'), rank: document.getElementById('rankOutput'),
                 percentile: document.getElementById('percentileOutput'), vsAverage: document.getElementById('vsAverageOutput'),
                 vsMedian: document.getElementById('vsMedianOutput'), zScore: document.getElementById('zScoreOutput'),
@@ -943,12 +827,12 @@
                 Cache.submitButton.disabled = true;
             }
 
-            setupTheme();
             setupEventListeners();
             showChartMessage("Please enter data and click Analyze to visualize the score distribution.", 'info');
             showMessage(Cache.frequencyTableMessage, "Frequency table will be generated after analysis based on the histogram bins.", 'info', 'bi-table');
             showMessage(Cache.percentileSliderMessage, "Slider will be enabled after analysis to explore score-percentile relationships.", 'info', 'bi-sliders');
             initializeTooltips();
+            if(Cache.manualCopyArea) Cache.manualCopyArea.style.display = 'none';
         }
 
         function checkAndInitializeLibraries() {
@@ -1003,7 +887,6 @@
             }
         }
 
-
         function initializeTooltips() {
             if (typeof bootstrap === 'undefined' || !bootstrap.Tooltip) {
                 console.warn("Bootstrap Tooltip component not available for initialization.");
@@ -1015,49 +898,13 @@
                  new bootstrap.Tooltip(tooltipTriggerEl, {
                     trigger: 'hover focus',
                     boundary: 'window',
-                })
+                 })
             );
         }
 
         function disposeTooltips() {
             bootstrapTooltipList.forEach(tooltip => tooltip?.dispose());
             bootstrapTooltipList = [];
-        }
-
-        function setupTheme() {
-            const applyTheme = (theme) => {
-                Cache.htmlElement.setAttribute('data-bs-theme', theme);
-                const isDark = theme === DARK_THEME;
-                if (Cache.themeIcon) Cache.themeIcon.className = isDark ? 'bi bi-moon-stars-fill fs-5' : 'bi bi-sun-fill fs-5';
-                if (Cache.themeToggleBtn) Cache.themeToggleBtn.setAttribute('aria-label', isDark ? 'Switch to light theme' : 'Switch to dark theme');
-
-                 if (librariesInitialized) {
-                    updateChartDefaults();
-                    try {
-                        if (distributionChart && currentAnalysisStats.count >= MIN_SCORES_FOR_CHART) {
-                            const shouldRenderChart = currentAnalysisStats.count >= MIN_SCORES_FOR_CHART && Math.abs(currentAnalysisStats.range) > FLOAT_PRECISION_EPSILON;
-                            if (shouldRenderChart) {
-                                renderDistributionChart(currentAnalysisStats.sortedScores, currentAnalysisStats.yourScore, currentAnalysisStats.min, currentAnalysisStats.max, true);
-                            }
-                        }
-                    } catch (e) {
-                         console.error("Error updating chart theme:", e);
-                    }
-                 }
-            };
-
-            const toggleTheme = () => {
-                const currentTheme = Cache.htmlElement.getAttribute('data-bs-theme') || LIGHT_THEME;
-                const newTheme = currentTheme === DARK_THEME ? LIGHT_THEME : DARK_THEME;
-                localStorage.setItem(THEME_STORAGE_KEY, newTheme);
-                applyTheme(newTheme);
-            };
-
-            const savedTheme = localStorage.getItem(THEME_STORAGE_KEY);
-            const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-            applyTheme(savedTheme || (prefersDark ? DARK_THEME : LIGHT_THEME));
-
-            if (Cache.themeToggleBtn) Cache.themeToggleBtn.addEventListener('click', toggleTheme);
         }
 
         function setupEventListeners() {
@@ -1084,12 +931,12 @@
                 Cache.downloadChartBtn.addEventListener('click', handleDownloadChartClick);
             }
 
-            if (Cache.percentileSlider) {
+             if (Cache.percentileSlider) {
                 Cache.percentileSlider.addEventListener('input', handlePercentileSliderInput);
             }
         }
 
-        function setLoadingState(isLoading) {
+         function setLoadingState(isLoading) {
              if (!Cache.submitButton || !Cache.loadingSpinner || !Cache.submitButtonTextSpan || !Cache.submitButtonIcon) {
                  console.warn("Cannot set loading state: Submit button elements missing.");
                  return;
@@ -1109,6 +956,7 @@
              Cache.errorMessage.setAttribute('aria-live', 'assertive');
              if (Cache.resultsContainer) Cache.resultsContainer.style.display = 'none';
              if (Cache.copyResultsBtn) Cache.copyResultsBtn.style.display = 'none';
+             if (Cache.manualCopyArea) Cache.manualCopyArea.style.display = 'none';
         }
 
         function clearGeneralError() {
@@ -1152,13 +1000,14 @@
                         const maxVal = inputElement.hasAttribute('max') ? parseFloat(inputElement.max) : Infinity;
                         if (numValue < minVal - FLOAT_PRECISION_EPSILON) {
                             isValid = false;
-                            errorMessage = `Score must be ${minVal} or higher.`;
+                            errorMessage = `Score must be ${inputElement.min} or higher.`;
                         } else if (numValue > maxVal + FLOAT_PRECISION_EPSILON) {
-                            isValid = false;
-                            errorMessage = `Score must be ${maxVal} or lower.`;
+                             isValid = false;
+                             errorMessage = `Score must be ${inputElement.max} or lower.`;
                         }
                     }
-                } else if (inputElement.tagName.toLowerCase() === 'textarea' && inputElement.id === 'classScores') {
+                }
+                else if (inputElement.tagName.toLowerCase() === 'textarea' && inputElement.id === 'classScores') {
                     const scores = parseScores(value);
                     if (scores.length === 0) {
                         isValid = false;
@@ -1188,6 +1037,9 @@
         }
 
         function calculateStats(yourScoreValue, classScores, targetScoreValue) {
+             if (typeof ss === 'undefined') {
+                 throw new Error("Simple Statistics library not loaded.");
+             }
              if (!Array.isArray(classScores)) {
                 throw new Error("Internal error: classScores is not an array.");
              }
@@ -1226,6 +1078,7 @@
                            : NaN;
 
              const rank = calculateRank(yourScoreValue, classScores);
+
              const percentile = calculatePercentile(yourScoreValue, sortedClassScores);
 
              let targetStats = { countAbove: NaN, percentAbove: NaN };
@@ -1284,6 +1137,7 @@
              }
         }
 
+
         function displayResults(stats) {
              if (!Cache.resultsContainer) {
                  console.error("Cannot display results: Results container not found.");
@@ -1292,13 +1146,9 @@
              currentRawStatsText = '';
              currentHistogramBins = [];
 
-             const resultsCards = Cache.resultsContainer.querySelectorAll('.card');
-             resultsCards.forEach(card => {
-                 card.style.animation = 'none';
-                 card.offsetHeight;
-                 card.style.animation = '';
-             });
-
+             Cache.resultsContainer.style.display = 'none';
+             Cache.resultsContainer.offsetHeight;
+             Cache.resultsContainer.style.display = 'block';
 
              const {
                 yourScore, rank, percentile, count, average, median, mode, variance, min, max, range,
@@ -1442,8 +1292,8 @@
                  if(Cache.outputElements.targetStatsRow) Cache.outputElements.targetStatsRow.style.display = 'none';
              }
 
-             Cache.resultsContainer.style.display = 'block';
              if (Cache.copyResultsBtn) Cache.copyResultsBtn.style.display = 'inline-flex';
+             if (Cache.manualCopyArea) Cache.manualCopyArea.style.display = 'none';
 
              updatePercentileSlider(stats.min, stats.max, stats.sortedScores);
 
@@ -1454,12 +1304,12 @@
              initializeTooltips();
         }
 
-        function getChartColors() {
+         function getChartColors() {
              const defaults = {
                  highlight: 'rgba(220, 53, 69, 0.8)', default: 'rgba(0, 123, 255, 0.65)',
                  border: 'rgba(0, 123, 255, 1)', highlightBorder: 'rgba(220, 53, 69, 1)',
-                 axis: '#495057', grid: 'rgba(0, 0, 0, 0.08)',
-                 line: 'rgba(111, 66, 193, 0.9)', linePoint: 'rgba(111, 66, 193, 1)'
+                 axis: '#adb5bd', grid: 'rgba(255, 255, 255, 0.1)',
+                 line: 'rgba(255, 193, 7, 0.9)', linePoint: 'rgba(255, 193, 7, 1)'
              };
              try {
                 const style = getComputedStyle(document.documentElement);
@@ -1485,6 +1335,15 @@
             const n = sortedScores.length;
             const range = dataMax - dataMin;
 
+            if (range <= FLOAT_PRECISION_EPSILON || n < MIN_SCORES_FOR_CHART) {
+                if (range <= FLOAT_PRECISION_EPSILON && n > 0) {
+                    const singleValue = sortedScores[0];
+                    const widthGuess = 1;
+                    return { numBins: 1, binWidth: widthGuess, startValue: singleValue - widthGuess / 2 };
+                }
+                return { numBins: 0, binWidth: 0, startValue: dataMin };
+            }
+
             let numBins;
             const q1 = ss.quantileSorted(sortedScores, 0.25);
             const q3 = ss.quantileSorted(sortedScores, 0.75);
@@ -1492,7 +1351,7 @@
 
             if (!isNaN(iqr) && iqr > FLOAT_PRECISION_EPSILON && n > 0) {
                 const fdBinWidth = 2 * iqr * Math.pow(n, -1/3);
-                if (fdBinWidth > FLOAT_PRECISION_EPSILON && range > FLOAT_PRECISION_EPSILON) {
+                if (fdBinWidth > FLOAT_PRECISION_EPSILON) {
                     numBins = Math.ceil(range / fdBinWidth);
                 } else {
                      numBins = Math.ceil(1 + Math.log2(n));
@@ -1517,7 +1376,6 @@
                  let precisionFactor = 1;
                  if (magnitude < -1) precisionFactor = Math.pow(10, Math.abs(magnitude) + 1);
                  else if (magnitude < 1) precisionFactor = 10;
-
                  binWidth = Math.round(binWidth * precisionFactor) / precisionFactor;
                  binWidth = Math.max(binWidth, FLOAT_PRECISION_EPSILON * 10);
              } else {
@@ -1525,15 +1383,15 @@
                  numBins = 1;
              }
 
-            let startValue = Math.floor(dataMin / binWidth) * binWidth;
-            if (startValue > dataMin - FLOAT_PRECISION_EPSILON) {
+             let startValue = Math.floor(dataMin / binWidth) * binWidth;
+             if (startValue > dataMin - FLOAT_PRECISION_EPSILON) {
                  startValue -= binWidth;
-            }
-            startValue = Math.min(startValue, dataMin);
+             }
+             startValue = Math.min(startValue, dataMin);
 
-            const adjustedEnd = Math.ceil(dataMax / binWidth) * binWidth;
-            numBins = Math.round((adjustedEnd - startValue) / binWidth);
-            numBins = Math.max(1, numBins);
+             const adjustedEnd = Math.ceil(dataMax / binWidth) * binWidth;
+             numBins = Math.round((adjustedEnd - startValue) / binWidth);
+             numBins = Math.max(1, numBins);
 
             return { numBins, binWidth, startValue };
         }
@@ -1541,12 +1399,17 @@
         function generateBinData(sortedScores, yourScore, dataMin, dataMax) {
             const n = sortedScores.length;
             currentHistogramBins = [];
-            if (n === 0 || Math.abs(dataMax - dataMin) <= FLOAT_PRECISION_EPSILON) {
-                return { bins: [], labels: [], binCounts: [], backgroundColors: [], borderColors: [], yourBinIndex: -1 };
+
+             if (n === 0) {
+                 return { bins: [], labels: [], binCounts: [], backgroundColors: [], borderColors: [], yourBinIndex: -1 };
             }
 
             const { numBins, binWidth, startValue } = calculateHistogramBins(sortedScores, dataMin, dataMax);
-            const colors = getChartColors();
+             const colors = getChartColors();
+
+             if (numBins === 0) {
+                 return { bins: [], labels: [], binCounts: [], backgroundColors: [], borderColors: [], yourBinIndex: -1 };
+             }
 
             const bins = [];
             const labels = [];
@@ -1568,7 +1431,7 @@
                 currentBinStart += binWidth;
             }
 
-            sortedScores.forEach(score => {
+             sortedScores.forEach(score => {
                  let assigned = false;
                  for (let i = 0; i < bins.length; i++) {
                      const bin = bins[i];
@@ -1594,7 +1457,7 @@
                      }
                  }
                   if (!assigned) {
-                     console.warn("Score could not be assigned to a bin:", score, "Min/Max:", dataMin, dataMax, "Bins:", bins);
+                     console.warn("Score could not be assigned to a calculated bin:", score, "Min/Max:", dataMin, dataMax, "Bins:", bins);
                       if (bins.length > 0) {
                           if (score <= bins[0].start + FLOAT_PRECISION_EPSILON) bins[0].count++;
                           else if (score >= bins[bins.length-1].end - FLOAT_PRECISION_EPSILON) bins[bins.length-1].count++;
@@ -1625,7 +1488,6 @@
 
             return { bins, labels, binCounts, backgroundColors, borderColors, yourBinIndex };
         }
-
 
         function renderDistributionChart(sortedScores, yourScore, dataMin, dataMax, isUpdate = false) {
             if (!librariesInitialized || !Cache.distributionChartCanvas || !Cache.distributionChartContainer) {
@@ -1664,32 +1526,41 @@
             const colors = getChartColors();
             const { labels, binCounts, backgroundColors, borderColors, yourBinIndex } = generateBinData(sortedScores, yourScore, dataMin, dataMax);
 
-            if (!labels || labels.length === 0) {
+             if (!labels || labels.length === 0) {
                  console.error("Histogram bin generation failed or resulted in zero bins.");
                  showChartMessage("Could not generate histogram bins for the chart.", 'danger');
                  if(Cache.downloadChartBtn) Cache.downloadChartBtn.style.display = 'none';
                  return;
-            }
+             }
 
             const chartData = {
                 labels: labels,
                 datasets: [
                     {
-                        type: 'bar', label: 'Student Count', data: binCounts,
-                        backgroundColor: backgroundColors, borderColor: borderColors,
-                        borderWidth: 1, order: 2,
+                        type: 'bar',
+                        label: 'Student Count',
+                        data: binCounts,
+                        backgroundColor: backgroundColors,
+                        borderColor: borderColors,
+                        borderWidth: 1,
+                        order: 2,
                         barPercentage: 1.0,
                         categoryPercentage: 0.95
                     },
                     {
-                        type: 'line', label: 'Distribution Shape', data: binCounts,
+                        type: 'line',
+                        label: 'Distribution Shape',
+                        data: binCounts,
                         borderColor: colors.line,
                         backgroundColor: 'transparent',
                         pointBackgroundColor: colors.linePoint,
                         pointBorderColor: colors.linePoint,
-                        borderWidth: 2.5, pointRadius: 3, pointHoverRadius: 5,
+                        borderWidth: 2.5,
+                        pointRadius: 3,
+                        pointHoverRadius: 5,
                         tension: 0.1,
-                        fill: false, order: 1
+                        fill: false,
+                        order: 1
                     }
                 ]
             };
@@ -1749,7 +1620,7 @@
                 }
             };
 
-            try {
+             try {
                  if (isUpdate && distributionChart) {
                      distributionChart.data = chartData;
                      distributionChart.options.scales.y.grid.color = colors.grid;
@@ -1825,7 +1696,7 @@
             }
 
             if (!currentHistogramBins || currentHistogramBins.length === 0) {
-                showMessage(Cache.frequencyTableMessage, "No data available to generate frequency table.", 'info', 'bi-table');
+                showMessage(Cache.frequencyTableMessage, "No data available to generate frequency table (requires chart bins).", 'info', 'bi-table');
                 Cache.frequencyTableContainer.style.display = 'none';
                 Cache.frequencyTableCaption.style.display = 'none';
                 return;
@@ -1844,8 +1715,8 @@
 
                 if (bin.isYourBin) {
                     row.style.fontWeight = 'bold';
-                    row.style.backgroundColor = 'var(--chart-highlight-color)';
                     row.classList.add('table-active');
+                    cellRange.innerHTML = `${bin.label} <span class="badge bg-danger-subtle text-danger-emphasis rounded-pill ms-1">Your Bin</span>`;
                 }
             });
 
@@ -1860,7 +1731,7 @@
                 return;
             }
 
-            if (sortedScores.length < 1 || isNaN(minScore) || isNaN(maxScore) || minScore >= maxScore) {
+            if (!sortedScores || sortedScores.length < 1 || isNaN(minScore) || isNaN(maxScore) || minScore >= maxScore) {
                 showMessage(Cache.percentileSliderMessage, "Insufficient or invalid data to enable percentile slider.", 'info', 'bi-sliders');
                 Cache.percentileSliderGroup.style.display = 'none';
                 Cache.percentileSlider.disabled = true;
@@ -1869,6 +1740,7 @@
 
             Cache.percentileSlider.min = minScore;
             Cache.percentileSlider.max = maxScore;
+
             const range = maxScore - minScore;
             let step = 1;
             if (range < 10) step = 0.1;
@@ -1877,6 +1749,7 @@
 
             Cache.percentileSlider.value = ss.medianSorted(sortedScores);
             Cache.percentileSlider.disabled = false;
+
             handlePercentileSliderInput();
 
             hideMessage(Cache.percentileSliderMessage);
@@ -1897,28 +1770,42 @@
 
             const percentile = calculatePercentile(selectedScore, sortedScores);
 
-            Cache.sliderScoreValue.textContent = formatStat(selectedScore, Cache.percentileSlider.step < 1 ? 1 : 0);
+            const scoreDecimals = Cache.percentileSlider.step < 1 ? 1 : 0;
+            Cache.sliderScoreValue.textContent = formatStat(selectedScore, scoreDecimals);
             Cache.sliderPercentileValue.textContent = formatStat(percentile, 1) + '%';
         }
 
         function handleDownloadChartClick() {
             if (!distributionChart || !Cache.distributionChartCanvas) {
                 console.error("Cannot download: Chart instance or canvas not available.");
-                alert("Chart is not available for download.");
+                alert("Chart is not available for download. Please analyze data first.");
                 return;
             }
 
             try {
-                const dataUrl = distributionChart.toBase64Image('image/png');
+                 const canvas = Cache.distributionChartCanvas;
+                 const tempCanvas = document.createElement('canvas');
+                 tempCanvas.width = canvas.width;
+                 tempCanvas.height = canvas.height;
+                 const tempCtx = tempCanvas.getContext('2d');
+                 const bgColor = getComputedStyle(Cache.distributionChartContainer || document.body).backgroundColor;
+                 tempCtx.fillStyle = bgColor || '#ffffff';
+                 tempCtx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
+                 tempCtx.drawImage(canvas, 0, 0);
+                 const dataUrl = tempCanvas.toDataURL('image/png');
+
+
                 const link = document.createElement('a');
                 link.href = dataUrl;
-                link.download = 'student_performance_chart.png';
+                link.download = `student_performance_chart_${Date.now()}.png`;
+
                 document.body.appendChild(link);
                 link.click();
                 document.body.removeChild(link);
+
             } catch (e) {
                 console.error("Failed to download chart:", e);
-                alert("An error occurred while trying to download the chart.");
+                alert("An error occurred while trying to download the chart. See console for details.");
             }
         }
 
@@ -1931,9 +1818,13 @@
                 85, 92, 71, 65, 78, 88, 95, 62, 75, 81,
                 90, 68, 73, 84, 77, 91, 60, 80, 86, 70,
                 79, 83, 67, 94, 74, 89, 63, 76, 87, 72,
-                93, 69, 82, 66, 96, 61, 99, 55, 45, 78
-            `;
-            updateScoreCount();
+                93 69 82 66 96 61 99 55 45 78
+            `.trim().replace(/\n\s+/g, ' ');
+
+             Cache.yourScoreInput.dispatchEvent(new Event('input', { bubbles: true }));
+             Cache.targetScoreInput.dispatchEvent(new Event('input', { bubbles: true }));
+             Cache.classScoresInput.dispatchEvent(new Event('input', { bubbles: true }));
+
         }
 
         function handleFormSubmit(event) {
@@ -1941,7 +1832,7 @@
             event.stopPropagation();
             disposeTooltips();
 
-            if (!checkAndInitializeLibraries()) {
+             if (!checkAndInitializeLibraries()) {
                 showGeneralError("Cannot analyze: Core libraries failed to load. Please reload or check console.");
                 if(Cache.submitButton) Cache.submitButton.disabled = true;
                 return;
@@ -1951,65 +1842,64 @@
             clearGeneralError();
             if (Cache.resultsContainer) Cache.resultsContainer.style.display = 'none';
             if (Cache.copyResultsBtn) Cache.copyResultsBtn.style.display = 'none';
+            if (Cache.manualCopyArea) Cache.manualCopyArea.style.display = 'none';
             currentAnalysisStats = {};
             currentHistogramBins = [];
             showChartMessage("Processing...", 'info');
             showMessage(Cache.frequencyTableMessage, "Processing...", 'info', 'bi-table');
             showMessage(Cache.percentileSliderMessage, "Processing...", 'info', 'bi-sliders');
 
-
             const isYourScoreValid = validateInput(Cache.yourScoreInput);
-            const isTargetScoreValid = validateInput(Cache.targetScoreInput);
+            const isTargetScoreValid = Cache.targetScoreInput.value.trim() === '' || validateInput(Cache.targetScoreInput);
             const isClassScoresValid = validateInput(Cache.classScoresInput);
 
             if (!isYourScoreValid || !isClassScoresValid || !isTargetScoreValid) {
-                const firstInvalid = Cache.marksForm?.querySelector('.is-invalid');
-                firstInvalid?.focus();
-                showGeneralError("Please correct the errors highlighted in the form before analyzing.");
-                showChartMessage("Analysis halted due to input errors.", 'danger');
-                showMessage(Cache.frequencyTableMessage, "Analysis halted due to input errors.", 'danger', 'bi-table');
-                showMessage(Cache.percentileSliderMessage, "Analysis halted due to input errors.", 'danger', 'bi-sliders');
-                setLoadingState(false);
-                return;
-            }
+                 console.warn("Form validation failed.");
+                 const firstInvalid = Cache.marksForm?.querySelector('.is-invalid');
+                 firstInvalid?.focus();
+                 showGeneralError("Please correct the errors highlighted in the form before analyzing.");
+                 showChartMessage("Analysis halted due to input errors.", 'danger');
+                 showMessage(Cache.frequencyTableMessage, "Analysis halted due to input errors.", 'danger', 'bi-table');
+                 showMessage(Cache.percentileSliderMessage, "Analysis halted due to input errors.", 'danger', 'bi-sliders');
+                 setLoadingState(false);
+                 return;
+             }
 
-            setTimeout(() => {
-                try {
-                    const yourScoreValue = parseFloat(Cache.yourScoreInput.value);
-                    const targetScoreValue = Cache.targetScoreInput.value.trim() !== '' ? parseFloat(Cache.targetScoreInput.value) : NaN;
-                    const classScores = parseScores(Cache.classScoresInput.value);
+             try {
+                const yourScoreValue = parseFloat(Cache.yourScoreInput.value);
+                const targetScoreValue = Cache.targetScoreInput.value.trim() !== '' ? parseFloat(Cache.targetScoreInput.value) : NaN;
+                const classScores = parseScores(Cache.classScoresInput.value);
 
-                    if (classScores.length === 0) {
-                         throw new Error("No valid numeric scores found in 'Class Scores'.");
-                    }
-
-                    currentAnalysisStats = calculateStats(yourScoreValue, classScores, targetScoreValue);
-
-                    displayResults(currentAnalysisStats);
-
-                    renderDistributionChart(
-                         currentAnalysisStats.sortedScores,
-                         currentAnalysisStats.yourScore,
-                         currentAnalysisStats.min,
-                         currentAnalysisStats.max,
-                         false
-                     );
-
-                    renderFrequencyTable();
-
-                } catch (error) {
-                    console.error("Analysis Error:", error);
-                    showGeneralError(`Analysis failed: ${error.message || 'An unknown error occurred'}.`);
-                    if (Cache.resultsContainer) Cache.resultsContainer.style.display = 'none';
-                    currentAnalysisStats = {};
-                    currentHistogramBins = [];
-                    showChartMessage('Could not generate chart due to an analysis error.', 'danger');
-                    showMessage(Cache.frequencyTableMessage, "Could not generate frequency table due to an analysis error.", 'danger', 'bi-table');
-                    showMessage(Cache.percentileSliderMessage, "Could not update percentile slider due to an analysis error.", 'danger', 'bi-sliders');
-                } finally {
-                    setLoadingState(false);
+                if (classScores.length === 0) {
+                     throw new Error("No valid numeric scores found in 'Class Scores'.");
                 }
-            }, 50);
+
+                currentAnalysisStats = calculateStats(yourScoreValue, classScores, targetScoreValue);
+
+                displayResults(currentAnalysisStats);
+
+                renderDistributionChart(
+                     currentAnalysisStats.sortedScores,
+                     currentAnalysisStats.yourScore,
+                     currentAnalysisStats.min,
+                     currentAnalysisStats.max,
+                     false
+                 );
+
+                renderFrequencyTable();
+
+             } catch (error) {
+                 console.error("Analysis Error:", error);
+                 showGeneralError(`Analysis failed: ${error.message || 'An unknown error occurred'}. Check console for details.`);
+                 if (Cache.resultsContainer) Cache.resultsContainer.style.display = 'none';
+                 currentAnalysisStats = {};
+                 currentHistogramBins = [];
+                 showChartMessage('Could not generate chart due to an analysis error.', 'danger');
+                 showMessage(Cache.frequencyTableMessage, "Could not generate frequency table due to an analysis error.", 'danger', 'bi-table');
+                 showMessage(Cache.percentileSliderMessage, "Could not update percentile slider due to an analysis error.", 'danger', 'bi-sliders');
+             } finally {
+                 setLoadingState(false);
+             }
         }
 
         function handleFormReset() {
@@ -2019,6 +1909,7 @@
                  Cache.resultsContainer.style.display = 'none';
              }
              clearGeneralError();
+             if (Cache.manualCopyArea) Cache.manualCopyArea.style.display = 'none';
 
              showChartMessage("Please enter data and click Analyze to visualize the score distribution.", 'info');
              showMessage(Cache.frequencyTableMessage, "Frequency table will be generated after analysis.", 'info', 'bi-table');
@@ -2028,7 +1919,6 @@
              if (Cache.percentileSliderGroup) Cache.percentileSliderGroup.style.display = 'none';
              if (Cache.percentileSlider) Cache.percentileSlider.disabled = true;
              if (Cache.downloadChartBtn) Cache.downloadChartBtn.style.display = 'none';
-
 
              currentAnalysisStats = {};
              currentRawStatsText = '';
@@ -2042,8 +1932,12 @@
                      input.removeAttribute('aria-invalid');
                      input.classList.remove('is-invalid');
                      const feedbackDivId = input.getAttribute('aria-describedby');
-                     const feedbackDiv = feedbackDivId ? document.getElementById(feedbackDivId.split(' ')[0]) : null;
-                     if (feedbackDiv) feedbackDiv.textContent = "";
+                     const feedbackDivIds = feedbackDivId ? feedbackDivId.split(' ') : [];
+                     const errorFeedbackDivId = feedbackDivIds.find(id => id.endsWith('Feedback'));
+                     if (errorFeedbackDivId) {
+                         const feedbackDiv = document.getElementById(errorFeedbackDivId);
+                         if (feedbackDiv) feedbackDiv.textContent = "";
+                     }
                  }
              });
 
@@ -2053,17 +1947,36 @@
              Cache.yourScoreInput?.focus();
         }
 
+        function showManualCopyFallback(textToCopy, reason = "Auto-copy failed") {
+            if (!Cache.manualCopyArea || !Cache.copyFeedback || !Cache.copyResultsBtn) return;
+
+            Cache.manualCopyArea.value = textToCopy.trim();
+            Cache.manualCopyArea.style.display = 'block';
+            try {
+                Cache.manualCopyArea.select();
+                Cache.manualCopyArea.setSelectionRange(0, 99999);
+            } catch (e) {
+                console.warn("Could not automatically select text in fallback area:", e);
+            }
+
+            Cache.copyFeedback.textContent = `${reason}. Select text above and copy manually (Ctrl+C / Cmd+C).`;
+            Cache.copyFeedback.style.color = 'var(--bs-warning)';
+            Cache.copyFeedback.classList.add('show');
+
+            setTimeout(() => {
+                if (Cache.copyResultsBtn) Cache.copyResultsBtn.disabled = false;
+            }, 3000);
+        }
+
         async function handleCopyResults() {
             if (!currentRawStatsText || !Cache.copyResultsBtn || !Cache.copyFeedback) return;
 
+            if (Cache.manualCopyArea) Cache.manualCopyArea.style.display = 'none';
+            Cache.copyFeedback.classList.remove('show');
+
             if (!navigator.clipboard || !navigator.clipboard.writeText) {
                 console.warn("Clipboard API not supported or available (requires secure context like HTTPS or localhost).");
-                Cache.copyFeedback.textContent = 'Auto-copy unavailable!';
-                Cache.copyFeedback.style.color = 'var(--bs-warning)';
-                Cache.copyFeedback.classList.add('show');
-                setTimeout(() => {
-                    if (Cache.copyFeedback) Cache.copyFeedback.classList.remove('show');
-                }, 3000);
+                showManualCopyFallback(currentRawStatsText, "Clipboard API unavailable");
                 return;
             }
 
@@ -2089,14 +2002,7 @@
 
             } catch (err) {
                 console.error('Failed to copy results to clipboard:', err);
-                Cache.copyFeedback.textContent = 'Copy failed!';
-                Cache.copyFeedback.style.color = 'var(--bs-danger)';
-                Cache.copyFeedback.classList.add('show');
-
-                 setTimeout(() => {
-                    if (Cache.copyFeedback) Cache.copyFeedback.classList.remove('show');
-                    if (Cache.copyResultsBtn) Cache.copyResultsBtn.disabled = false;
-                 }, 3000);
+                showManualCopyFallback(currentRawStatsText, "Auto-copy failed");
             }
         }
 
